@@ -4,6 +4,23 @@ Complete history of DraftCraft architecture and implementation phases.
 
 ---
 
+## Version 1.0.1 - Documentation Reorganization (November 26, 2025)
+
+### Documentation
+- **Aggressive documentation cleanup** - Reduced from 34 to 18 essential files
+- **Consolidated duplicate guides** - Merged CLAUDE_NEW.md into .claude/CLAUDE.md
+- **Archived completed phases** - Moved Phase 1/2 checklists and roadmaps to docs/archived_phases/
+- **Organized test documentation** - Grouped Docker and performance guides in docs/testing/
+- **Fixed status conflicts** - Updated README, CLAUDE.md, and changelogs to reflect "Phase 2 In Progress"
+- **Created archive manifest** - docs_archive/2025-11/CHANGES.md documents all superseded files
+- **Initialized git repository** - Added git version control to DraftCraftV1 project
+- **Established maintenance guidelines** - Clear rules for where documentation belongs
+
+### Result
+Clear, maintainable documentation structure that prevents future confusion. All content preserved via git history.
+
+---
+
 ## Version 1.0.0 - Production Ready (November 26, 2025)
 
 ### Phase 1: Foundation ✅ COMPLETE
