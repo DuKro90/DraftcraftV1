@@ -1,0 +1,94 @@
+{
+  "test_credentials": {
+    "username": "loadtest_user",
+    "password": "LoadTest2024!Secure"
+  },
+  "api_endpoints": {
+    "health": "/api/v1/health/ocr/",
+    "auth": "/api/auth/token/",
+    "documents_list": "/api/v1/documents/",
+    "documents_create": "/api/v1/documents/",
+    "documents_retrieve": "/api/v1/documents/{id}/",
+    "documents_process": "/api/v1/documents/{id}/process/",
+    "proposals_list": "/api/v1/proposals/",
+    "proposals_create": "/api/v1/proposals/"
+  },
+  "performance_thresholds": {
+    "warm_up": {
+      "description": "Lightweight baseline with 10 users over 2 minutes",
+      "users": 10,
+      "spawn_rate": 2,
+      "duration_minutes": 2,
+      "expected_avg_response_ms": 200,
+      "expected_p95_response_ms": 400,
+      "expected_success_rate": 0.99
+    },
+    "target_load": {
+      "description": "Expected production volume with 50 users over 5 minutes",
+      "users": 50,
+      "spawn_rate": 5,
+      "duration_minutes": 5,
+      "expected_avg_response_ms": 500,
+      "expected_p95_response_ms": 1000,
+      "expected_success_rate": 0.95
+    },
+    "stress_test": {
+      "description": "Find breaking point with 100 users over 3 minutes",
+      "users": 100,
+      "spawn_rate": 10,
+      "duration_minutes": 3,
+      "expected_avg_response_ms": 1500,
+      "expected_p95_response_ms": 3000,
+      "expected_success_rate": 0.90
+    }
+  },
+  "user_distribution": {
+    "read_heavy": {
+      "percentage": 60,
+      "weight": 3,
+      "description": "Simulates users browsing documents and proposals",
+      "primary_tasks": [
+        "list_documents",
+        "list_proposals",
+        "retrieve_document_details",
+        "health_check"
+      ]
+    },
+    "write_heavy": {
+      "percentage": 20,
+      "weight": 1,
+      "description": "Simulates users uploading and processing documents",
+      "primary_tasks": [
+        "upload_document",
+        "process_document",
+        "check_processing_status"
+      ]
+    },
+    "mixed": {
+      "percentage": 20,
+      "weight": 1,
+      "description": "Balanced operations across all endpoints",
+      "primary_tasks": [
+        "list_documents",
+        "upload_document",
+        "process_document",
+        "list_proposals"
+      ]
+    }
+  },
+  "test_data": {
+    "sample_pdf_path": "tests/fixtures/sample_load_test.pdf",
+    "sample_pdf_size_mb": 2.5,
+    "sample_proposal_data": {
+      "title": "Load Test Proposal",
+      "description": "Generated for load testing purposes",
+      "status": "pending"
+    }
+  },
+  "notes": {
+    "warm_up_purpose": "Establish lightweight baseline to ensure system is responsive",
+    "target_load_purpose": "Simulate expected weekly production volume (30-100 proposals per week)",
+    "stress_test_purpose": "Identify performance bottlenecks and breaking points",
+    "user_distribution_rationale": "60% read operations reflect typical handcraft business workflow where users browse proposals frequently but upload less often"
+  }
+}

@@ -1,0 +1,45 @@
+Admin Oberfläche ML Training
+
+zu 1)
+
+Dokumenten upload ---> Gewerk auswählen über Dropdown (Tischler, Polsterer, etc.) Daten auslesen klicken ---> Prüfen ob alle relevanten Positionen erfasst wurden welche zu bepreisen sind ---> nein/ markieren falsch erfasst, nicht erfasst C2A auslesen korrigieren ---> ja/ Berechnungsgrundlage wählen (Stundenverrechnung, Gemeinkostenzuschlag, usw) ----> Angebotspreis ermitteln klicken  ----> Auswertungsprotokoll prüfen (wie wurden Textbausteine interpretiert und welche Kennzahlen deswegen eingeflossen) ----> Korrektur von Berechnungsprotokoll durch manuelles ändern der Bausteine ----->  Speichern der korrigierten Berechnung
+
+Dokument erneut laden und Prozess mit neuem wissen testen oder anderes Dokument hochladen
+
+zu 2)
+
+Bsp. Anfrage Bitte machen sie mir ein Angebot für das Neubeziehen meiner Eck-couch mit Leder ca 3 x 1,5m. 
+Der Federkernsessel hat außerdem eine gebrochenen Feder und die geschwungenen Armlehnen müssen komplett erneuert werden. siehe Bilder 
+
+Erfasst werden müssen alle Möbel --> Schwerpunkte ----> Material/ Menge ----> besonderen Merkmale
+Spezielle Bauteile (Preise werden im User Interface im Web recherchiert wenn nicht als Händlerkatalog angebunden) 
+
+Die betrieblichen Kennzahlen sind individuell und werden Über ein Musterformular bereit gestellt. Bsp. für Polsterei im Anhang.
+
+Zusätzlich soll später die Auswertung aus Bildern mit in die Erfassung einfließen: Schnittstelle muss vorbereitet werden (modular einbindbar)
+
+zu 3) 
+
+betriebliche Kennzahlen werden auch über Formulare bereitgestellt und je nach Anwenderwunsch und Betrieb eingebunden. sie wirken für den jeweiligen Betrieb global
+
+Betrieb kann jederzeit seine Kennzahlen abändern oder Gewinnmarge über Schieberegler %-tual beeinflussen
+
+ 
+zu 4)
+
+in 1 beschrieben
+
+
+zu 5)
+
+- wahlweise betriebliches Onboarding
+- ausfüllen von den betriebsspezifischen Kennzahlen
+- vordefinierte Branchenübliche Kennzahlen verwenden
+
+
+Admin Interface Features zusätzlich
+
+- einbinden anderer Kennzahlen Formulare
+- Materialkataloge hinzufügen/ löschen
+- Trainingspakete aufrufen und löschen
+

@@ -1,0 +1,14 @@
+# Production dependencies
+-r base.txt
+
+# Server
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Cloud (GCP)
+google-cloud-storage==2.14.0
+google-cloud-tasks==2.15.1
+cloud-sql-python-connector==1.4.3
+
+# Error tracking
+sentry-sdk==1.39.1

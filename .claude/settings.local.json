@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker container prune:*)",
+      "Bash(docker rmi:*)",
+      "Bash(docker build:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(cat:*)",
+      "Bash(dir \"C:\\Users\\dusti\\.claude\\plans\")",
+      "Bash(dir \"C:\\Codes\\DraftcraftV1\\backend\\tests\")",
+      "Bash(python -c:*)",
+      "Bash(dir \"C:\\Codes\\DraftcraftV1\" /b)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

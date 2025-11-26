@@ -1,0 +1,397 @@
+================================================================================
+POLSTER-PREISLISTE 2025
+================================================================================
+Kalkulationsgrundlage für alle Polsterarbeiten
+Letzte Aktualisierung: 2025-01-17
+
+WICHTIG: Diese Datei dient als Referenz für Kalkulationen
+Änderungen in Config-Dateien:
+- Kissen: kissen_config.py
+- Bank: bank_config.py
+
+
+================================================================================
+1. SCHAUMSTOFF-PREISE
+================================================================================
+Preise in €/m²/cm (Einkaufspreis + 40% Aufschlag bereits eingerechnet)
+Standard-Aufschlag: 40%
+
+--- PU-SCHÄUME ---
+RG 2560 (anthrazit, leicht)              3,00 €/m²/cm
+RG 3028 (rosa, Rücken)                   2,65 €/m²/cm
+RG 3543 (grün, Allround)                 3,35 €/m²/cm
+RG 3550 (weiß, leicht fest)              3,00 €/m²/cm
+RG 4040 (lichtblau, mittlerer Sitz)      4,10 €/m²/cm
+RG 4050 (hellblau, mittelfest)           4,10 €/m²/cm
+RG 4060 (weiß, stabil)                   3,45 €/m²/cm
+RG 5063 (rot, sehr guter Sitz)           4,65 €/m²/cm
+RG 5078 (orange, hart)                   4,30 €/m²/cm
+RG 6070 (anthrazit, hochelastisch)       5,95 €/m²/cm
+RG 8080 (anthrazit, super)               8,25 €/m²/cm
+
+--- KALTSCHÄUME ---
+GR 2515 (azur, weich Rücken)             3,45 €/m²/cm
+GR 3028 (grün, elastisch Rücken)         4,10 €/m²/cm
+GR 3530 (lila, elastisch Rücken)         3,85 €/m²/cm
+GR 4036 (grau, weicher Sitz)             4,50 €/m²/cm
+GR 5553 (hellblau, elastisch)            5,35 €/m²/cm
+GR 5535 (silber, Top-Matratze)           5,35 €/m²/cm
+GR 5560 (lila, schwer elastisch) ⭐      5,35 €/m²/cm  ← STANDARD
+GR 5580 (rost/gelb, extrem stabil)       6,50 €/m²/cm
+C 5740 (marmoriert, B1)                  8,47 €/m²/cm
+C 5760 (weiß, B1)                        8,47 €/m²/cm
+
+--- VERBUNDSCHAUM ---
+VB 140 (bunt, Verbund)                   7,45 €/m²/cm
+  → Plattengröße: 100 x 210 cm
+
+SCHAUM-PLATTENGROSSEN (Standard):
+- Breite: 130 cm
+- Länge: 205 cm
+- Fläche pro Platte: 2,665 m²
+
+
+================================================================================
+2. STUNDENSATZ UND ZEITAUFSCHLÄGE
+================================================================================
+
+STUNDENSATZ:             65,00 €/h
+
+--- STOFFSCHWIERIGKEITSGRADE (Zeitaufschläge) ---
+Basis: Glatte Stoffe (Kunstleder, Bouclé, Canvas, Filz)
+
+STOFFART                 ZEITFAKTOR    BESCHREIBUNG
+-----------------------  ------------  -----------------------------------------
+Kunstleder ⭐            1,0×          Basis-Zeitfaktor (Standard)
+Bouclé                   1,0×          Gleich wie Kunstleder
+Canvas                   1,0×          Leicht zu verarbeiten
+Filz                     1,0×          Gleich wie Kunstleder
+Schurwolle               1,1×          +10% längere Verarbeitung
+Leinen                   1,15×         +15% längere Verarbeitung
+Cord                     1,2×          +20% längere Verarbeitung (Strichrichtung)
+Velours/Samt             1,3×          +30% längere Verarbeitung
+Mohair                   1,3×          +30% längere Verarbeitung
+Musterstoffe             1,3×          +30% längere Verarbeitung (Rapport beachten)
+Seide/empfindlich        1,5×          +50% längere Verarbeitung (sehr heikel)
+
+HINWEIS: Bei schwierigen Stoffen die Basiszeit mit dem Faktor multiplizieren!
+
+Beispiel: Kissen 60×60 cm mit Velours
+- Basiszeit: 2,5 Stunden
+- Mit Velours: 2,5 h × 1,3 = 3,25 Stunden
+
+
+================================================================================
+3. BEZUGSARTEN UND FERTIGUNGSMETHODEN
+================================================================================
+
+--- GETACKERTE BEZÜGE (einseitig) ---
+Anwendung: Festpolster, Sitzbänke, Wandpolster
+Merkmale:
+- Bezug wird um Schaum gelegt und an Rückseite getackert
+- Keine Reißverschlüsse erforderlich
+- Umlaufende Naht am Rand
+- Schnellere Fertigung als genähte Bezüge
+
+ZEITBERECHNUNG (getackert):
+Grundzeit: 1,0 Stunden
++ Zuschnitt: 0,5 Stunden
++ Nähen (umlaufende Naht): 0,3 Stunden pro Meter Umfang
++ Tackern: 0,2 Stunden pro Meter Umfang
++ Stoffschwierigkeitsfaktor
+
+Beispiel: Sitzkissen 100×60×10 cm (getackert)
+- Umfang: 3,2 m
+- Grundzeit: 1,0 h
+- Zuschnitt: 0,5 h
+- Nähen: 3,2 m × 0,3 h/m = 0,96 h
+- Tackern: 3,2 m × 0,2 h/m = 0,64 h
+- GESAMT: 3,1 Stunden (× Stofffaktor)
+
+--- GENÄHTE BEZÜGE MIT REISSVERSCHLUSS (beidseitig) ---
+Anwendung: Wechselbare Kissen, Lounge-Möbel, hochwertige Polster
+Merkmale:
+- Abnehmbarer Bezug
+- Reißverschluss eingenäht
+- Beide Seiten mit Stoff
+- Höherer Zeitaufwand
+
+ZEITBERECHNUNG (genäht mit RV):
+Formel: Grundzeit + (Fläche × Faktor) + Nahttyp-Faktor + RV-Zeit
+
+Grundzeit: 1,4286 Stunden
+Flächenfaktor: 0,00029762 Stunden pro cm²
+RV einnähen: +0,5 Stunden
++ Stoffschwierigkeitsfaktor
+
+Beispiel: Sitzkissen 100×60×10 cm (genäht, RV, normale Naht)
+- Fläche: 6.000 cm²
+- Grundzeit: 1,4286 h
+- Fläche: 6.000 × 0,00029762 = 1,786 h
+- RV: 0,5 h
+- GESAMT: 3,71 Stunden (× Stofffaktor)
+
+
+================================================================================
+4. NAHTTYPEN UND PREISE (nur bei genähten Bezügen)
+================================================================================
+
+NAHTTYP          NAHTZUGABE    ZUSATZKOSTEN    ZEITFAKTOR    BESCHREIBUNG
+---------------  ------------  --------------  ------------  ------------------
+Normal ⭐        1 cm          0,00 €/m        +0,0 h        Normale Naht
+Keder            1 cm          60,00 €/m       +0,0 h        3,5cm Stoffstreifen
+Biese            3 cm          30,00 €/m       -0,2 h        Biese-Naht
+Kappnaht         1 cm          10,00 €/m       -0,5 h        Kappnaht
+Doppelnaht       1 cm          40,00 €/m       +0,1 h        Doppelnaht
+
+⭐ = Standard
+
+HINWEIS: Bei getackerten Bezügen keine Keder/Biese möglich!
+
+
+================================================================================
+5. MATERIALPREISE
+================================================================================
+
+STOFFE (Beispielpreise):
+- Kvadrat Hallingdal 65:     70,00 €/lfm    (132 cm breit)
+- Nobilis Samt Dédale:      130,00 €/lfm    (140 cm breit)
+- Dedar Millais:            100,00 €/lfm    (138 cm breit)
+- Dedar Tiger Beat:         180,00 €/lfm    (140 cm breit)
+- Élitis Orso:              160,00 €/lfm    (140 cm breit)
+
+STOFFVERSCHNITT:
+- Standard: 25% Aufschlag auf Netto-Bedarf
+- Bei komplexen Formen: 30-35%
+
+ANTIRUTSCH:
+- Preis: 15,00 €/m (Laufmeter)
+- Breite: 146 cm
+- Drehbar: Ja (alle Richtungen)
+
+REIßVERSCHLUSS:
+- Preis: 1,00 €/m
+- Nur bei genähten Bezügen mit abnehmbarem Cover
+
+
+================================================================================
+6. STANDARD-KISSENGROSSEN ECKIG (GETACKERT)
+================================================================================
+
+Basis: GR 5560 Schaum (5,35 €/m²/cm), Kunstleder, getackert
+Zeiten gelten für EINSEITIGEN Bezug (getackert)
+
+FORMAT        DICKE   SCHAUM     UMFANG   STOFF*    ZEIT     ARBEITSKOSTEN
+-----------   -----   --------   ------   -------   ------   -------------
+40×40 cm      10 cm    8,56 €     1,6 m    0,4 lfm   2,0 h      130,00 €
+50×50 cm      10 cm   13,38 €     2,0 m    0,5 lfm   2,3 h      149,50 €
+60×60 cm      10 cm   19,26 €     2,4 m    0,6 lfm   2,5 h      162,50 €
+80×80 cm      10 cm   34,24 €     3,2 m    0,8 lfm   3,2 h      208,00 €
+100×60 cm     10 cm   32,10 €     3,2 m    0,8 lfm   3,1 h      201,50 €
+100×80 cm     10 cm   42,80 €     3,6 m    0,9 lfm   3,5 h      227,50 €
+100×100 cm    10 cm   53,50 €     4,0 m    1,0 lfm   3,8 h      247,00 €
+120×60 cm     10 cm   38,52 €     3,6 m    0,9 lfm   3,5 h      227,50 €
+120×80 cm     10 cm   51,36 €     4,0 m    1,0 lfm   3,8 h      247,00 €
+140×60 cm     10 cm   44,94 €     4,0 m    1,0 lfm   3,8 h      247,00 €
+140×80 cm     10 cm   59,92 €     4,4 m    1,1 lfm   4,1 h      266,50 €
+200×60 cm     10 cm   64,20 €     5,2 m    1,3 lfm   4,8 h      312,00 €
+200×80 cm     10 cm   85,60 €     5,6 m    1,4 lfm   5,2 h      338,00 €
+
+* Stoffbedarf bei 140cm Rollenbreite OHNE 25% Verschnitt
+
+HINWEIS VELOURS: Bei Velours alle Zeiten × 1,3 rechnen!
+Beispiel: 60×60 cm Velours = 2,5 h × 1,3 = 3,25 Stunden
+
+
+================================================================================
+7. STANDARD-KISSENGROSSEN RUND (GETACKERT)
+================================================================================
+
+Basis: GR 5560 Schaum (5,35 €/m²/cm), Kunstleder, getackert
+Zeiten gelten für EINSEITIGEN Bezug (getackert)
+HINWEIS: Runde Kissen +20% Zeitaufwand vs. eckig (komplexeres Tackern)
+
+DURCHMESSER   DICKE   SCHAUM     UMFANG   STOFF*    ZEIT     ARBEITSKOSTEN
+-----------   -----   --------   ------   -------   ------   -------------
+Ø 40 cm       10 cm    6,73 €     1,26 m   0,35 lfm  2,4 h      156,00 €
+Ø 50 cm       10 cm   10,52 €     1,57 m   0,45 lfm  2,8 h      182,00 €
+Ø 60 cm       10 cm   15,15 €     1,88 m   0,55 lfm  3,0 h      195,00 €
+Ø 80 cm       10 cm   26,94 €     2,51 m   0,70 lfm  3,8 h      247,00 €
+Ø 100 cm      10 cm   42,10 €     3,14 m   0,90 lfm  4,6 h      299,00 €
+Ø 120 cm      10 cm   60,43 €     3,77 m   1,05 lfm  5,3 h      344,50 €
+
+* Stoffbedarf bei 140cm Rollenbreite OHNE 25% Verschnitt
+
+HINWEIS VELOURS: Bei Velours alle Zeiten × 1,3 rechnen!
+Beispiel: Ø 60 cm Velours = 3,0 h × 1,3 = 3,9 Stunden
+
+
+================================================================================
+8. STANDARD-KISSENGROSSEN ECKIG (GENÄHT MIT REISSVERSCHLUSS)
+================================================================================
+
+Basis: GR 5560 Schaum (5,35 €/m²/cm), Kunstleder, genäht, normale Naht
+Zeiten gelten für BEIDSEITIGEN Bezug mit Reißverschluss
+
+FORMAT        DICKE   SCHAUM     RV       STOFF*    ZEIT     ARBEITSKOSTEN
+-----------   -----   --------   ------   -------   ------   -------------
+40×40 cm      10 cm    8,56 €    0,4 m    0,8 lfm   2,5 h      162,50 €
+50×50 cm      10 cm   13,38 €    0,5 m    1,0 lfm   2,8 h      182,00 €
+60×60 cm      10 cm   19,26 €    0,6 m    1,2 lfm   3,0 h      195,00 €
+80×80 cm      10 cm   34,24 €    0,8 m    1,6 lfm   3,8 h      247,00 €
+100×60 cm     10 cm   32,10 €    1,0 m    1,6 lfm   3,7 h      240,50 €
+100×80 cm     10 cm   42,80 €    1,0 m    1,8 lfm   4,2 h      273,00 €
+100×100 cm    10 cm   53,50 €    1,0 m    2,0 lfm   4,6 h      299,00 €
+120×60 cm     10 cm   38,52 €    1,2 m    1,8 lfm   4,2 h      273,00 €
+120×80 cm     10 cm   51,36 €    1,2 m    2,0 lfm   4,6 h      299,00 €
+140×60 cm     10 cm   44,94 €    1,4 m    2,0 lfm   4,6 h      299,00 €
+140×80 cm     10 cm   59,92 €    1,4 m    2,2 lfm   5,0 h      325,00 €
+
+* Stoffbedarf bei 140cm Rollenbreite OHNE 25% Verschnitt
+
+HINWEIS VELOURS: Bei Velours alle Zeiten × 1,3 rechnen!
+
+
+================================================================================
+9. SCHAUM-ZUSCHNITT UND KLEBEARBEITEN
+================================================================================
+
+--- SCHNITTARTEN ---
+Schnitt          Zeit       Kosten      Beschreibung
+---------------  ---------  ----------  ---------------------------------------
+Gerade           2 Min      2,17 €      Gerader Schnitt durch Schaumplatte
+Schräg           4 Min      4,33 €      Schräger Schnitt (z.B. Rückenlehnen)
+Kontur           8 Min      8,67 €      Komplexe Kontur (geschwungen, rund)
+
+--- KLEBEARBEITEN ---
+Arbeitsschritt   Zeit       Kosten      Beschreibung
+---------------  ---------  ----------  ---------------------------------------
+Kleben           3 Min      3,25 €      Pro Klebeverbindung zwischen 2 Teilen
+Aushärten        5 Min      5,42 €      Wartezeit pro Verbindung
+
+HINWEIS: Schaum kleben IMMER im Preis inbegriffen!
+
+BEISPIEL: Sitzbank-Segment (Sitz + Rücken geklebt)
+- 2× Gerade Schnitte (Sitz + Rücken):    2 + 2 = 4 Min = 4,33 €
+- 1× Schräger Schnitt (Rücken-Winkel):   4 Min = 4,33 €
+- 1× Klebeverbindung + Aushärten:        3 + 5 = 8 Min = 8,67 €
+GESAMT:                                  16 Min = 17,33 €
+
+
+================================================================================
+10. KALKULATIONSBEISPIELE
+================================================================================
+
+--- BEISPIEL 1: Sitzkissen 100×60×10 cm GETACKERT, Velours ---
+
+MATERIAL:
+- Schaum GR 5560: 0,60 m² × 10 cm × 5,35 €/m²/cm = 32,10 €
+- Velours-Stoff: 0,8 lfm (netto) × 1,25 (Verschnitt) = 1,0 lfm
+  1,0 lfm × 150 €/lfm = 150,00 €
+
+ARBEITSZEIT:
+- Basiszeit (getackert): 3,1 Stunden
+- Velours-Faktor: 3,1 h × 1,3 = 4,03 Stunden
+- Arbeitskosten: 4,03 h × 65 €/h = 261,95 €
+
+GESAMT:
+- Material: 182,10 €
+- Arbeit: 261,95 €
+TOTAL: 444,05 € (netto)
+
+
+--- BEISPIEL 2: Rund-Kissen Ø 60×10 cm GENÄHT MIT RV, Kunstleder ---
+
+MATERIAL:
+- Schaum GR 5560: 0,283 m² × 10 cm × 5,35 €/m²/cm = 15,15 €
+- Kunstleder: 0,55 lfm × 2 (beidseitig) × 1,25 (Verschnitt) = 1,38 lfm
+  1,38 lfm × 80 €/lfm = 110,40 €
+- Reißverschluss: 0,60 m × 1 €/m = 0,60 €
+
+ARBEITSZEIT:
+- Grundzeit: 1,4286 h
+- Fläche: 2.827 cm² × 0,00029762 = 0,84 h
+- RV: 0,5 h
+- Rund-Aufschlag: +20%
+- Gesamt: (1,4286 + 0,84 + 0,5) × 1,2 = 3,32 Stunden
+- Arbeitskosten: 3,32 h × 65 €/h = 215,80 €
+
+GESAMT:
+- Material: 126,15 €
+- Arbeit: 215,80 €
+TOTAL: 341,95 € (netto)
+
+
+--- BEISPIEL 3: Sitzbank 200×60 cm GETACKERT (Sitz 10cm + Rücken 35cm), Kunstleder ---
+
+SITZPOLSTER:
+- Schaum: 1,20 m² × 10 cm × 5,35 €/m²/cm = 64,20 €
+- Umfang: 5,2 m
+- Zeit: 4,8 Stunden
+
+RÜCKENPOLSTER:
+- Schaum: 1,20 m² × 4 cm × 5,35 €/m²/cm = 25,68 €
+- Umfang: 4,9 m
+- Zeit: 4,5 Stunden
+
+STOFF:
+- Kunstleder: 3,5 lfm (netto) × 1,25 = 4,38 lfm
+  4,38 lfm × 80 €/lfm = 350,40 €
+
+KLEBEARBEITEN:
+- 2× Gerade Schnitte + 1× Klebeverbindung = 16 Min = 0,27 h
+
+ARBEITSZEIT GESAMT:
+- Polstern: 4,8 + 4,5 + 0,27 = 9,57 Stunden
+- Arbeitskosten: 9,57 h × 65 €/h = 622,05 €
+
+GESAMT:
+- Material (Schaum + Stoff): 440,28 €
+- Arbeit: 622,05 €
+TOTAL: 1.062,33 € (netto)
+
+
+================================================================================
+11. WICHTIGE HINWEISE FÜR KALKULATION
+================================================================================
+
+✓ IMMER 25% Stoffverschnitt einrechnen (min.)
+✓ Bei komplexen Formen 30-35% Verschnitt
+✓ Stoffschwierigkeitsfaktor NICHT vergessen!
+  → Velours/Samt: × 1,3
+  → Bouclé: × 1,4
+  → Seide: × 1,5
+✓ Getackerte Bezüge: Schneller, keine RV, einseitig
+✓ Genähte Bezüge: Langsamer, mit RV, beidseitig, abnehmbar
+✓ Schaum kleben IMMER im Preis inbegriffen
+✓ Runde Polster: +20% Zeit vs. eckig
+✓ Bei MwSt: 19% auf Netto-Gesamtsumme
+
+
+================================================================================
+12. ABGESCHLOSSENE PROJEKTE (REFERENZ)
+================================================================================
+
+PROJEKT: Villa Franz (2025)
+Datei: C:\Users\HansNeugebauer\Desktop\Polster_Kalkulation_Villa_Franz_Final.txt
+Positionen: 8 Stück (Sitzbänke, Wandpolster)
+Gesamt: 11.744,44 € (netto) / 13.975,88 € (brutto)
+Besonderheiten: Alle getackert, verschiedene Velours-Stoffe
+
+
+================================================================================
+13. CONFIG-DATEIEN FÜR PREISÄNDERUNGEN
+================================================================================
+
+KISSEN-KALKULATOR:
+C:\Users\HansNeugebauer\Desktop\Planungstool\Kissenmaß Kalkulator\Kalkulator Kissen\kissen_config.py
+
+BANK-KALKULATOR:
+C:\Users\HansNeugebauer\Desktop\Planungstool\Kalkulator Polsterbänke\bank_config.py
+
+Nach Änderungen: Kalkulator neu starten!
+
+
+================================================================================
+ENDE DER PREISLISTE
+================================================================================

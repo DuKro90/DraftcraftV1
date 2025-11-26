@@ -1,0 +1,22 @@
+# DraftCraft ML/OCR Dependencies (Heavy - 500MB+)
+# Install only when OCR/NER features are needed:
+#   pip install -r ml.txt
+# Then download spaCy German model:
+#   python -m spacy download de_core_news_lg
+#
+# These dependencies are optional and not required for basic DraftCraft functionality.
+# Installation time: 15-20 minutes (includes large ML models)
+
+# Include all base dependencies
+-r base.txt
+
+# OCR - Text extraction from PDF/image documents
+paddleocr==2.7.0.3
+pdf2image==1.16.3
+
+# NER - Named entity recognition for German construction terminology
+spacy==3.7.2
+
+# Image preprocessing for OCR accuracy
+opencv-python==4.8.1.78
+scikit-image==0.22.0

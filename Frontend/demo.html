@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DraftCraft - Demo Mode</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* ---------------------------------------------------------
+           SPEZIFISCHE STYLES FÜR DEIN LOGO & WASSERZEICHEN
+           --------------------------------------------------------- */
+        
+        /* 1. Logo im Header (Runder Ausschnitt) */
+        .logo-img {
+            height: 42px;           /* Größe im Header */
+            width: 42px;            /* Quadratisch erzwingen */
+            object-fit: cover;      /* Bild füllt den Kreis ohne Verzerrung */
+            object-position: center; 
+            border-radius: 50%;     /* Macht es zum perfekten Kreis */
+            border: 2px solid rgba(255,255,255,0.2); 
+            margin-right: 12px;
+            background-color: white; /* Hintergrund weiß, falls PNG transparent ist */
+        }
+
+        /* 2. Großes Hintergrund-Wasserzeichen */
+        .background-watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;            /* Hinter dem Inhalt */
+            
+            /* Hier wird dein PNG geladen */
+            background-image: url('image_58d8fa.png');
+            
+            background-size: 60%;   /* Größe des Wasserzeichens */
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.03;          /* Sehr transparent (3% Sichtbarkeit) */
+            filter: grayscale(100%); /* Optional: Schwarz/Weiß */
+            pointer-events: none;   /* Klicks gehen durch */
+        }
+
+        /* Demo Badge Style */
+        .demo-badge {
+            background: var(--accent-500);
+            color: var(--brand-900);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body class="theme-yellow">
+
+    <div class="background-watermark"></div>
+
+    <header class="site-header">
+        <div class="container header-inner">
+            <div class="logo">
+                <img src="image_58d8fa.png" alt="Logo" class="logo-img">
+                <span class="logo-text">DraftCraft</span>
+                <span class="demo-badge">Demo</span>
+            </div>
+
+            <nav class="desktop-nav">
+                <a href="#app">Application</a>
+                <a href="#">Pricing</a>
+            </nav>
+
+            <div class="header-actions">
+                <div id="authStatus" style="font-size: 0.9rem; opacity: 0.8;">Gast-Zugriff</div>
+            </div>
+            
+            <button class="hamburger-btn" id="hamburgerBtn">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="mobile-menu-overlay" id="mobileMenu">
+        <nav class="mobile-nav-links">
+            <a href="#app" class="mobile-link">Application</a>
+            <button onclick="window.location.reload()" class="btn btn-primary full-width">Reset</button>
+        </nav>
+    </div>
+
+    <section class="hero">
+        <div class="container hero-content">
+            <h1 class="hero-headline">Streamline Your Proposals</h1>
+            <p class="hero-subheadline">AI-Powered Software for Faster Estimates</p>
+            
+            <div style="margin-top: 2rem;">
+                 <a href="#app" class="btn btn-primary">Jetzt starten</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="app" class="section-features">
+        <div class="container">
+            <h3 class="section-title">Angebots-Workflow</h3>
+            
+            <div class="grid-3">
+                
+                <div class="card" id="uploadSection">
+                    <h4>1. Dokument hochladen</h4>
+                    <p class="hero-desc" style="font-size: 0.9rem;">Lade eine Anfrage (PDF/Bild) hoch.</p>
+                    
+                    <div class="form-group">
+                        <input type="file" id="fileInput" class="input-field">
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button onclick="handleUpload()" class="btn btn-primary full-width">Analysieren</button>
+                    </div>
+                    <div id="uploadStatus" style="margin-top:10px; font-size: 0.9rem; color: var(--muted);"></div>
+                </div>
+
+                <div class="card" id="processingSection" style="opacity: 0.5; pointer-events: none;">
+                    <h4>2. Analyse Ergebnisse</h4>
+                    <div id="extractionResults">
+                        <p class="hero-desc" style="font-size: 0.9rem;">Warte auf Datei...</p>
+                    </div>
+                </div>
+
+                <div class="card" id="proposalSection" style="opacity: 0.5; pointer-events: none;">
+                    <h4>3. Angebot erstellen</h4>
+                    <form id="proposalForm">
+                        <div class="form-group">
+                            <label>Kundenname</label>
+                            <input type="text" id="customerName" class="input-field" value="Musterfirma GmbH" required>
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label>E-Mail</label>
+                            <input type="email" id="customerEmail" class="input-field" value="kontakt@musterfirma.de" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary full-width" style="margin-top: 1rem;">Generieren</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <div id="proposalResultContainer" class="card" style="margin-top: 2rem; display: none; text-align: center; border: 2px solid var(--accent-500);">
+                <h4>Angebot erfolgreich erstellt!</h4>
+                <div id="proposalResultData"></div>
+                <div style="margin-top: 1.5rem;">
+                    <button onclick="downloadPDF()" class="btn btn-primary">PDF Herunterladen</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+        // --- KONFIGURATION DER DEMO-DATEN ---
+        const DEMO_CONFIG = {
+            totalPrice: "12.500,00 €",
+            projectData: {
+                "PROJEKT_TYP": "E-Commerce Shop Relaunch",
+                "BUDGET_INDIKATION": "10.000 - 15.000 EUR",
+                "DEADLINE": "15.02.2025",
+                "TECHNOLOGIE": "Shopify & Custom App"
+            }
+        };
+
+        /**
+         * MOCK API (Backend Simulation)
+         */
+        class MockAPI {
+            constructor() { this.config = DEMO_CONFIG; }
+
+            sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+            async uploadDocument(file) {
+                await this.sleep(1500); 
+                return { id: "doc-123", status: "uploaded" };
+            }
+
+            async processDocument(docId) {
+                await this.sleep(2000); 
+                return { status: "processed" };
+            }
+
+            async getExtractionResults(docId) {
+                await this.sleep(600);
+                return {
+                    ocr_confidence: 0.98,
+                    entity_types: this.config.projectData
+                };
+            }
+
+            async generateProposal(data) {
+                await this.sleep(1500);
+                return {
+                    id: "prop-999",
+                    proposal_number: "ANG-2024-001",
+                    total: this.config.totalPrice
+                };
+            }
+
+            async downloadProposalPdf(proposalId) {
+                await this.sleep(1000);
+                return new Blob(["Fake PDF Content"], { type: 'application/pdf' });
+            }
+        }
+
+        // --- UI LOGIC ---
+        const api = new MockAPI();
+
+        // Hamburger
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('hamburgerBtn');
+            const menu = document.getElementById('mobileMenu');
+            let open = false;
+            btn.addEventListener('click', () => {
+                open = !open;
+                menu.classList.toggle('active', open);
+                btn.style.transform = open ? "rotate(90deg)" : "rotate(0deg)";
+            });
+        });
+
+        function updateStatus(id, msg, error=false) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.style.color = error ? 'red' : 'var(--muted)';
+        }
+
+        function enableSection(id) {
+            const el = document.getElementById(id);
+            el.style.opacity = "1";
+            el.style.pointerEvents = "all";
+        }
+
+        // Upload
+        async function handleUpload() {
+            const fileInput = document.getElementById('fileInput');
+            if(!fileInput.files[0]) {
+                alert("Bitte eine Datei wählen.");
+                return;
+            }
+
+            try {
+                updateStatus('uploadStatus', 'Simuliere Upload...');
+                const doc = await api.uploadDocument(fileInput.files[0]);
+
+                updateStatus('uploadStatus', 'KI Analyse läuft...');
+                await api.processDocument(doc.id);
+
+                const results = await api.getExtractionResults(doc.id);
+                
+                const html = `
+                    <div style="background:var(--surface-100); padding:1rem; border-radius:8px; font-size:0.9rem;">
+                        <p><strong>Erkannte Daten:</strong></p>
+                        <ul style="padding-left:20px; margin-top:5px;">
+                            ${Object.entries(results.entity_types).map(([k,v]) => `<li>${k}: <b>${v}</b></li>`).join('')}
+                        </ul>
+                        <p style="margin-top:10px; font-size:0.8rem; color:green;">✓ KI Confidence: ${(results.ocr_confidence*100)}%</p>
+                    </div>
+                `;
+                document.getElementById('extractionResults').innerHTML = html;
+                updateStatus('uploadStatus', 'Fertig!', false);
+
+                enableSection('processingSection');
+                enableSection('proposalSection');
+
+            } catch (e) {
+                console.error(e);
+                updateStatus('uploadStatus', 'Fehler: ' + e.message, true);
+            }
+        }
+
+        // Proposal
+        document.getElementById('proposalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Erstelle PDF...";
+            btn.disabled = true;
+
+            try {
+                const proposal = await api.generateProposal({});
+                
+                document.getElementById('proposalResultContainer').style.display = 'block';
+                document.getElementById('proposalResultData').innerHTML = `
+                    <div style="font-size:1.1rem; margin-bottom:10px;">
+                        Angebot <strong>${proposal.proposal_number}</strong> erstellt.
+                    </div>
+                    <div style="font-size:2.5rem; font-weight:800; color:var(--brand-500);">
+                        ${proposal.total}
+                    </div>
+                `;
+                document.getElementById('proposalResultContainer').scrollIntoView({behavior:'smooth'});
+
+            } catch(e) {
+                alert(e);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function downloadPDF() {
+            const blob = await api.downloadProposalPdf("123");
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "demo-angebot.pdf";
+            a.click();
+            URL.revokeObjectURL(url);
+            alert("Download gestartet!");
+        }
+    </script>
+</body>
+</html>

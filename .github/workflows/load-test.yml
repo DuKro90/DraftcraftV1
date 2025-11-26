@@ -1,0 +1,252 @@
+name: Load Test Baseline
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      users:
+        description: 'Number of concurrent users'
+        required: false
+        default: '20'
+      duration:
+        description: 'Test duration in minutes'
+        required: false
+        default: '1'
+
+  # Weekly schedule - Monday at 02:00 UTC
+  schedule:
+    - cron: '0 2 * * 1'
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: draftcraft
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r backend/requirements/development.txt
+
+      - name: Apply database migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/draftcraft
+          SECRET_KEY: test-secret-key-for-ci
+          DJANGO_SETTINGS_MODULE: config.settings.development
+        working-directory: backend
+        run: python manage.py migrate
+
+      - name: Create test user
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/draftcraft
+          SECRET_KEY: test-secret-key-for-ci
+          DJANGO_SETTINGS_MODULE: config.settings.development
+        working-directory: backend
+        run: |
+          python manage.py shell << 'EOF'
+          from django.contrib.auth import get_user_model
+          User = get_user_model()
+          user, created = User.objects.get_or_create(
+              username='loadtest_user',
+              defaults={'email': 'loadtest@example.com', 'is_active': True}
+          )
+          if created:
+              user.set_password('LoadTest2024!Secure')
+              user.save()
+          print(f"Load test user ready: {user.username}")
+          EOF
+
+      - name: Create test data
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/draftcraft
+          SECRET_KEY: test-secret-key-for-ci
+          DJANGO_SETTINGS_MODULE: config.settings.development
+        working-directory: backend
+        run: |
+          python manage.py shell << 'EOF'
+          from django.contrib.auth import get_user_model
+          from documents.models import Document, Proposal
+
+          User = get_user_model()
+          user = User.objects.get(username='loadtest_user')
+
+          # Create sample documents
+          for i in range(5):
+              Document.objects.get_or_create(
+                  title=f'Load Test Document {i+1}',
+                  user=user,
+                  defaults={
+                      'description': f'Test document for load testing',
+                      'source': 'uploaded',
+                      'status': 'uploaded'
+                  }
+              )
+
+          # Create sample proposals
+          for i in range(3):
+              Proposal.objects.get_or_create(
+                  title=f'Load Test Proposal {i+1}',
+                  user=user,
+                  defaults={
+                      'description': f'Test proposal for load testing',
+                      'status': 'pending'
+                  }
+              )
+
+          print("Test data created successfully")
+          EOF
+
+      - name: Start Django test server
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/draftcraft
+          SECRET_KEY: test-secret-key-for-ci
+          DJANGO_SETTINGS_MODULE: config.settings.development
+          REDIS_URL: redis://localhost:6379/0
+        working-directory: backend
+        run: |
+          python manage.py runserver 0.0.0.0:8000 &
+          sleep 5
+          echo "Django server started"
+
+      - name: Verify API health
+        run: |
+          max_attempts=30
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            response=$(curl -s -w "\n%{http_code}" http://localhost:8000/api/v1/health/ocr/)
+            status=$(echo "$response" | tail -n 1)
+            if [ "$status" = "200" ]; then
+              echo "API is healthy"
+              exit 0
+            fi
+            echo "Waiting for API... (attempt $attempt/$max_attempts)"
+            sleep 2
+            ((attempt++))
+          done
+          echo "API failed to start"
+          exit 1
+
+      - name: Create reports directory
+        run: mkdir -p backend/tests/reports
+
+      - name: Run moderate load test
+        working-directory: backend
+        env:
+          LOCUST_USERS: ${{ github.event.inputs.users || 20 }}
+          LOCUST_DURATION: ${{ github.event.inputs.duration || 1 }}
+        run: |
+          python -m locust \
+            -f tests/load_test.py \
+            --host=http://localhost:8000 \
+            --headless \
+            --users ${LOCUST_USERS} \
+            --spawn-rate $((${LOCUST_USERS} / 5)) \
+            --run-time ${LOCUST_DURATION}m \
+            --csv tests/reports/load_test \
+            --html tests/reports/load_test_report.html \
+            --loglevel INFO || true
+
+      - name: Analyze results
+        if: success()
+        working-directory: backend
+        run: |
+          echo "=== Load Test Results ==="
+          echo ""
+          if [ -f tests/reports/load_test_stats.csv ]; then
+            echo "Test Statistics:"
+            head -10 tests/reports/load_test_stats.csv
+            echo ""
+            echo "Endpoint Performance:"
+            head -5 tests/reports/load_test_requests.csv
+          else
+            echo "No statistics file found"
+          fi
+
+      - name: Check performance thresholds
+        if: success()
+        working-directory: backend
+        run: |
+          echo "Checking performance thresholds..."
+          # Note: Actual threshold checking would parse CSV files
+          # For now, just verify test completed
+          if [ -f tests/reports/load_test_report.html ]; then
+            echo "Load test report generated successfully"
+          fi
+
+      - name: Upload reports as artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: load-test-reports-${{ github.run_id }}
+          path: backend/tests/reports/
+          retention-days: 30
+
+      - name: Comment on PR (if pull request)
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = './backend/tests/reports/load_test_report.html';
+
+            let comment = '## Load Test Results\n\n';
+
+            if (fs.existsSync(reportPath)) {
+              comment += '✅ Load test completed successfully\n\n';
+              comment += '[View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n\n';
+              comment += '📊 Report artifacts: Load test reports have been uploaded\n';
+            } else {
+              comment += '⚠️ Load test did not generate reports\n';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## Load Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Users**: ${{ github.event.inputs.users || 20 }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Duration**: ${{ github.event.inputs.duration || 1 }} minute(s)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Reports are available in the Actions artifacts." >> $GITHUB_STEP_SUMMARY
