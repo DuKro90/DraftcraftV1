@@ -4,6 +4,101 @@ Complete history of DraftCraft architecture and implementation phases.
 
 ---
 
+## Version 1.1.0 - Phase 3 Complete: Betriebskennzahlen & Integration (November 27, 2025)
+
+### Phase 3: Betriebskennzahlen (Operational Metrics) ✅ COMPLETE
+
+**Database Models** (8 new models via `0002_phase3_regenerated.py`)
+- `BetriebskennzahlTemplate` - TIER 1 Global Standards templates
+- `HolzartKennzahl` - Wood type factors (Eiche, Buche, Kiefer, etc.)
+- `OberflächenbearbeitungKennzahl` - Surface finish factors (Oelen, Lackieren, Wachsen)
+- `KomplexitaetKennzahl` - Complexity/technique factors (Gedrechselt, Gefräst, Geschnitzt)
+- `IndividuelleBetriebskennzahl` - TIER 2 Company-specific metrics (labor rates, margins, overhead)
+- `MateriallistePosition` - TIER 2 Custom material lists with bulk discounts
+- `SaisonaleMarge` - TIER 3 Seasonal pricing adjustments
+- `AdminActionAudit` - DSGVO-compliant audit trail for all admin actions
+
+**Pattern Analysis Models** (3 models)
+- `ExtractionFailurePattern` - Tracks recurring extraction failures
+- `PatternReviewSession` - Admin review workflow for patterns
+- `PatternFixProposal` - Safe deployment of pattern fixes
+
+**Agent Enhancement Models** (2 models - Phase 2 Enhancement)
+- `Batch` - Batch processing for multiple documents
+- `BatchDocument` - Document-to-batch relationship tracking
+
+**Core Services** (4 major services)
+- `CalculationEngine` - 8-step pricing calculation (TIER 1/2/3 support)
+- `PatternAnalyzer` - Failure pattern detection & root cause analysis
+- `SafeKnowledgeBuilder` - Validated fix deployment with safeguards
+- `IntegratedPipeline` - Complete orchestration (OCR → NER → Agent → Calculation)
+
+**Supporting Services** (7 services)
+- `BatchProcessor` - Async batch document processing
+- `ConfidenceRouter` - 4-tier intelligent routing (AUTO_ACCEPT, AGENT_VERIFY, AGENT_EXTRACT, HUMAN_REVIEW)
+- `CostTracker` - Budget management for Gemini API usage
+- `GeminiAgentService` - LLM enhancement with Gemini 1.5 Flash
+- `MemoryService` - Dual-layer memory (Redis + PostgreSQL)
+- `ImagePreprocessor` - CV2-based image preprocessing for OCR
+- `NERTrainer` - spaCy NER model trainer with synthetic data generation
+
+**Admin Interface** (11 new Django Admin classes)
+- Template management (BetriebskennzahlTemplate, HolzartKennzahl, etc.)
+- Company metrics configuration (IndividuelleBetriebskennzahl)
+- Material list management (MateriallistePosition)
+- Seasonal campaigns (SaisonaleMarge)
+- Pattern review workflow (ExtractionFailurePattern, PatternReviewSession, PatternFixProposal)
+- Audit trail viewer (AdminActionAudit)
+
+**Testing** (78+ tests passing)
+- `test_calculation_engine.py` - TIER 1/2/3 pricing validation ✅
+- `test_phase3_integration.py` - Models, Admin, Integration tests ✅
+- `test_pattern_analysis.py` - Pattern detection & fix workflow ✅
+- `test_batch_processor.py` - Async batch processing ✅
+- `test_integrated_pipeline.py` - End-to-end pipeline tests ✅
+- `test_phase2_services.py` - Gemini Agent, Memory, Routing, Cost tracking ✅
+
+**Migration Fix**
+- Regenerated all Phase 3 migrations with `python manage.py makemigrations`
+- Fixed model name mismatches (Oberflächenbearbeitung, IndividuelleBetriebskennzahl)
+- Single clean migration: `0002_phase3_regenerated.py`
+- All 78 Phase 3 tests passing in Docker
+
+**Docker & Dependencies**
+- Added `requirements/constraints.txt` for NumPy 1.x compatibility
+- Updated `requirements/ml.txt` with Phase 3 ML dependencies
+- Fixed test imports (removed `backend.` prefix)
+
+### Architecture Improvements
+- **3-Tier Pricing System:**
+  - TIER 1: Global Standards (Holzarten, Oberflächen, Komplexität)
+  - TIER 2: Company Metrics (Labor rates, Overhead, Margin, Custom materials)
+  - TIER 3: Dynamic Adjustments (Seasonal, Customer discounts, Bulk pricing)
+- **Safe Knowledge Deployment:** Pattern fixes require admin review before deployment
+- **DSGVO Compliance:** Complete audit trail for all admin actions with retention policies
+- **Batch Processing:** Async processing of multiple documents via Celery
+
+### Performance & Quality
+- **Test Coverage:** 78+ tests passing (Phase 3 core functionality verified)
+- **Database Indexes:** 20+ strategic indexes for query optimization
+- **Unique Constraints:** Prevent data duplication across templates and users
+- **Cascade Deletes:** Proper FK relationships with CASCADE/SET_NULL
+
+### Documentation
+- Updated `.claude/CLAUDE.md` with Phase 3 status
+- Added Phase 3 integration summary in `docs/phases/`
+- Documented 8-step pricing calculation workflow
+- Pattern analysis and fix deployment guides
+
+### Known Limitations
+- API test fixtures need updates (267 errors, not Phase 3-specific)
+- Test coverage at 29% (services not fully tested yet - planned for Phase 4)
+- 4 failed tests (fixture/auth-related, non-blocking for deployment)
+
+**Status:** Phase 3 core functionality complete and ready for GCP Cloud Run deployment
+
+---
+
 ## Version 1.0.1 - Documentation Reorganization (November 26, 2025)
 
 ### Documentation

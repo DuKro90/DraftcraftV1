@@ -329,5 +329,86 @@ GCP_CREDENTIALS = config('GCP_CREDENTIALS', default='')
 GCS_BUCKET_NAME = config('GCS_BUCKET_NAME', default='draftcraft-documents')
 CLOUD_TASKS_QUEUE = config('CLOUD_TASKS_QUEUE', default='document-processing')
 
+# ============================================================================
+# Agentic RAG Configuration (Phase 2 Enhancement)
+# ============================================================================
+
+# Gemini API Configuration
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-1.5-flash')
+USE_MOCK_GEMINI = config('USE_MOCK_GEMINI', default='False', cast=bool)
+
+# Redis Cache Configuration (for short-term memory)
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': config('REDIS_URL', default='redis://localhost:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+            'IGNORE_EXCEPTIONS': True,  # Gracefully degrade if Redis unavailable
+        },
+        'TIMEOUT': 3600,  # 1 hour TTL for short-term memory
+    }
+}
+
+# Agent Settings - Intelligent routing configuration
+AGENT_SETTINGS = {
+    'ALWAYS_ENABLED': True,  # Agent always integrated, routing decides usage
+    'CONFIDENCE_THRESHOLDS': {
+        'auto_accept': 0.92,      # Skip agent for high-confidence results
+        'agent_verify': 0.80,     # Agent verifies borderline results
+        'agent_extract': 0.70,    # Agent re-extracts low-confidence results
+        'human_review': 0.0,      # Results below 70% marked for manual review
+    },
+    'FIELD_WEIGHTS': {
+        'amount': 3.0,            # Critical financial field
+        'date': 2.5,              # Important for context
+        'gaeb_position': 2.5,     # Critical for construction docs
+        'vendor_name': 2.0,
+        'invoice_number': 2.0,
+        'material': 1.5,          # Important for cost estimation
+        'contact_person': 1.0,
+        'notes': 0.5,
+    },
+    'COMPLEXITY_SCORING': {
+        'low': {'agent_threshold': 0.75, 'max_tokens': 500},
+        'medium': {'agent_threshold': 0.80, 'max_tokens': 1000},
+        'high': {'agent_threshold': 0.70, 'max_tokens': 2000},
+    },
+    'CONTEXT_WINDOW': 5,  # Include 5 previous documents for context
+    'MEMORY_RETENTION_HOURS': 24,  # Keep short-term patterns for 24 hours
+}
+
+# Gemini API Budget Configuration
+GEMINI_BUDGET_CONFIG = {
+    'DEFAULT_MONTHLY_USD': config('AGENT_MONTHLY_BUDGET_USD', default='50.00', cast=float),
+    'ALERT_THRESHOLD_PERCENT': config('AGENT_ALERT_THRESHOLD_PERCENT', default='80', cast=int),
+    'HARD_STOP_PERCENT': 100,  # Stop processing when 100% budget reached
+    'ESTIMATE_TOKENS_PER_CALL': {
+        'auto_accept': 0,        # No API call
+        'agent_verify': 200,     # ~100 input, 100 output
+        'agent_extract': 500,    # ~200 input, 300 output
+        'human_review': 0,       # Flagged, no API call
+    },
+    'MODEL_PRICING': {
+        'gemini-1.5-flash': {
+            'input_per_1m_tokens': 0.075,
+            'output_per_1m_tokens': 0.30,
+        },
+        'gemini-2-pro': {
+            'input_per_1m_tokens': 0.15,
+            'output_per_1m_tokens': 0.60,
+        },
+    },
+    'RETRY_POLICY': {
+        'max_retries': 3,
+        'backoff_factor': 1.5,
+        'timeout_seconds': 30,
+    },
+}
+
 # Analytics
 SENTRY_DSN = config('SENTRY_DSN', default='')

@@ -4,6 +4,19 @@ from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
 import uuid
 
+# Import Betriebskennzahl models (TIER 1-3 calculation metrics) for Django app registry
+# This ensures Django discovers models in betriebskennzahl_models.py
+from .betriebskennzahl_models import (  # noqa: F401
+    BetriebskennzahlTemplate,
+    HolzartKennzahl,
+    OberflächenbearbeitungKennzahl,
+    KomplexitaetKennzahl,
+    IndividuelleBetriebskennzahl,
+    MateriallistePosition,
+    SaisonaleMarge,
+    AdminActionAudit,
+)
+
 
 class Document(models.Model):
     """Uploaded document for processing."""
@@ -74,6 +87,12 @@ class ExtractionResult(models.Model):
     # Errors (if any)
     error_messages = models.JSONField(default=list, blank=True)
 
+    # Agent enhancement (agentic RAG)
+    agent_enhanced = models.BooleanField(default=False, help_text='Was result enhanced by Gemini agent')
+    agent_confidence = models.FloatField(null=True, blank=True, help_text='Agent confidence score after enhancement')
+    requires_review = models.BooleanField(default=False, help_text='Flagged for human review by agent')
+    review_reasons = models.JSONField(default=list, blank=True, help_text='Reasons why review is needed')
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -120,3 +139,102 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.action} - {self.timestamp}"
+
+
+class Batch(models.Model):
+    """Batch job for processing multiple documents."""
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('partial_failure', 'Partial Failure'),
+        ('failed', 'Failed'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='batches')
+
+    # Batch metadata
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+
+    # Processing progress
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    file_count = models.IntegerField(default=0)
+    processed_count = models.IntegerField(default=0)
+    error_count = models.IntegerField(default=0)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    estimated_completion = models.DateTimeField(null=True, blank=True)
+
+    # Extra metadata
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['status']),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.status})"
+
+    @property
+    def progress_percentage(self) -> float:
+        """Calculate progress as percentage."""
+        if self.file_count == 0:
+            return 0.0
+        return (self.processed_count + self.error_count) / self.file_count * 100
+
+
+class BatchDocument(models.Model):
+    """Individual document within a batch."""
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('queued', 'Queued'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    batch = models.ForeignKey(
+        Batch,
+        on_delete=models.CASCADE,
+        related_name='documents'
+    )
+    document = models.ForeignKey(
+        Document,
+        on_delete=models.CASCADE,
+        related_name='batch_documents'
+    )
+
+    # Processing status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    # Cloud Task tracking (for async processing)
+    cloud_task_id = models.CharField(max_length=255, blank=True, null=True)
+
+    # Error handling
+    error_message = models.TextField(blank=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['batch', 'status']),
+            models.Index(fields=['document']),
+        ]
+        unique_together = [('batch', 'document')]
+
+    def __str__(self):
+        return f"{self.batch.name} - {self.document.original_filename}"

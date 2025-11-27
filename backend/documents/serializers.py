@@ -1,6 +1,6 @@
 """Serializers for document models."""
 from rest_framework import serializers
-from .models import Document, ExtractionResult, AuditLog
+from .models import Document, ExtractionResult, AuditLog, Batch, BatchDocument
 
 
 class ExtractionResultSerializer(serializers.ModelSerializer):
@@ -162,3 +162,111 @@ class AuditLogSerializer(serializers.ModelSerializer):
             'details',
         )
         read_only_fields = fields
+
+
+class BatchDocumentSerializer(serializers.ModelSerializer):
+    """Serializer for BatchDocument model."""
+
+    document_name = serializers.CharField(source='document.original_filename', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    class Meta:
+        model = BatchDocument
+        fields = (
+            'id',
+            'batch',
+            'document',
+            'document_name',
+            'status',
+            'status_display',
+            'cloud_task_id',
+            'error_message',
+            'created_at',
+            'processed_at',
+        )
+        read_only_fields = (
+            'id',
+            'status',
+            'cloud_task_id',
+            'error_message',
+            'created_at',
+            'processed_at',
+        )
+
+
+class BatchCreateSerializer(serializers.ModelSerializer):
+    """Serializer for batch creation."""
+
+    class Meta:
+        model = Batch
+        fields = (
+            'name',
+            'description',
+            'metadata',
+        )
+
+
+class BatchListSerializer(serializers.ModelSerializer):
+    """List serializer for Batch (minimal fields)."""
+
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    class Meta:
+        model = Batch
+        fields = (
+            'id',
+            'name',
+            'status',
+            'status_display',
+            'file_count',
+            'processed_count',
+            'error_count',
+            'progress_percentage',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = fields
+
+
+class BatchDetailSerializer(serializers.ModelSerializer):
+    """Detailed serializer for Batch with documents."""
+
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    documents = BatchDocumentSerializer(many=True, read_only=True)
+    document_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Batch
+        fields = (
+            'id',
+            'name',
+            'description',
+            'status',
+            'status_display',
+            'file_count',
+            'processed_count',
+            'error_count',
+            'progress_percentage',
+            'document_count',
+            'documents',
+            'created_at',
+            'updated_at',
+            'completed_at',
+            'estimated_completion',
+            'metadata',
+        )
+        read_only_fields = (
+            'id',
+            'file_count',
+            'processed_count',
+            'error_count',
+            'status',
+            'created_at',
+            'updated_at',
+            'completed_at',
+            'estimated_completion',
+        )
+
+    def get_document_count(self, obj):
+        """Get count of documents in batch."""
+        return obj.documents.count()

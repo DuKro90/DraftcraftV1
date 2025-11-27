@@ -11,12 +11,15 @@
 -r base.txt
 
 # OCR - Text extraction from PDF/image documents
-paddleocr==2.7.0.3
+# Note: Upgraded to 2.8.1+ for PyMuPDF 1.23.x compatibility (binary wheels)
+paddleocr==2.8.1
 pdf2image==1.16.3
 
 # NER - Named entity recognition for German construction terminology
 spacy==3.7.2
 
 # Image preprocessing for OCR accuracy
-opencv-python==4.8.1.78
+# Note: opencv-python-headless required for Cloud Run (headless environment)
+# PaddleOCR may install opencv-python - Dockerfile enforces headless version
+opencv-python-headless==4.6.0.66
 scikit-image==0.22.0

@@ -1,0 +1,36 @@
+# =============================================================================
+# DEPENDENCY CONSTRAINTS FOR DRAFTCRAFTV1
+# =============================================================================
+# Diese Datei limitiert Versionen für ALLE pip-Installationen im Docker Build
+# Verwendung: pip install -c constraints.txt -r requirements.txt
+# =============================================================================
+#
+# Erstellt: 2025-11-27
+# Zweck: Resolve OpenCV 4.6.x / NumPy 2.x Binary Incompatibility
+# Dokumentation: .claude/claude code docker build guide.md
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# NumPy Version Constraint - KRITISCH für OpenCV Kompatibilität
+# -----------------------------------------------------------------------------
+# Problem: OpenCV 4.6.0.66 wurde mit NumPy 1.x kompiliert
+# OpenCV ist binär inkompatibel mit NumPy 2.x
+# PaddleOCR 2.7.0.3 erfordert opencv<=4.6.0.66
+#
+# Fehlermeldung ohne Constraint:
+#   ImportError: numpy.core.multiarray failed to import
+#
+# Lösung: NumPy MUSS < 2.0.0 sein für alle Installationen
+# -----------------------------------------------------------------------------
+numpy>=1.21.0,<2.0.0
+
+# =============================================================================
+# WICHTIG: Dieses Constraint wird bei ALLEN pip install verwendet:
+#   pip install -c constraints.txt -r base.txt
+#   pip install -c constraints.txt -r development.txt
+#   pip install -c constraints.txt -r ml.txt
+#
+# NIEMALS explizite numpy-Versionen in anderen requirement files hinzufügen!
+# Das Constraint hier übernimmt die Versions-Kontrolle.
+# =============================================================================

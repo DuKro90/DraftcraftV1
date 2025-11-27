@@ -10,6 +10,10 @@ from .views import (
     ProposalTemplateViewSet,
     HealthCheckViewSet,
 )
+from .batch_views import (
+    BatchViewSet,
+    BatchDocumentViewSet,
+)
 
 app_name = 'v1'
 
@@ -20,6 +24,8 @@ router.register(r'materials', MaterialExtractionViewSet, basename='material')
 router.register(r'extraction-config', ExtractionConfigViewSet, basename='extraction-config')
 router.register(r'proposals', ProposalViewSet, basename='proposal')
 router.register(r'proposal-templates', ProposalTemplateViewSet, basename='proposal-template')
+router.register(r'batches', BatchViewSet, basename='batch')
+router.register(r'batch-documents', BatchDocumentViewSet, basename='batch-document')
 router.register(r'health', HealthCheckViewSet, basename='health')
 
 urlpatterns = [

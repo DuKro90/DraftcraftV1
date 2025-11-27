@@ -1,8 +1,8 @@
 # German Handwerk Document Analysis System - Claude Development Guide
 
-**Version:** 1.0.0  
-**Letzte Aktualisierung:** November 26, 2025
-**Projekt-Status:** Phase 2 In Progress (Backend 100% Complete)  
+**Version:** 2.1.0
+**Letzte Aktualisierung:** November 27, 2025
+**Projekt-Status:** Phase 3 - Betriebskennzahlen & Integration ✅ COMPLETED
 
 ---
 
@@ -22,22 +22,12 @@ Django 5.0 Anwendung für die **intelligente Extraktion strukturierter Daten** a
 ### Aktuelle Entwicklungsphase
 
 **Phase 1 MVP (4 Wochen) - ✅ ABGESCHLOSSEN**
-- Synchrone Verarbeitung
-- Basis OCR/NER Services
-- Django Admin Interface
-- REST API Endpoints
-
 **Phase 2 Production (6 Wochen) - ✅ ABGESCHLOSSEN**
-- Async Processing mit Cloud Tasks
-- Enterprise Security & DSGVO Compliance
-- GAEB XML Integration
-- Performance Optimization
-- Blue-Green Deployment
+**Phase 2 Enhancement: Agentic RAG - ✅ ABGESCHLOSSEN**
+**Phase 3 - Betriebskennzahlen & Integration (8 Wochen) - ✅ ABGESCHLOSSEN**
 
-**Phase 2 Enhancement - 🚧 IN ARBEIT**
-- Weitere Features und Optimierungen
-
-➡️ Siehe [docs/archived_phases/](../../docs/archived_phases/) für abgeschlossene Phasen-Dokumentation
+➡️ Siehe `.claude/guides/` für detaillierte Service-Dokumentation
+➡️ Siehe `PHASE3_INTEGRATION_SUMMARY.md` für Phase 3 Details
 
 ---
 
@@ -72,70 +62,69 @@ vulture                  # Unused Code Detection
 
 ---
 
-## 🇩🇪 Deutsche Handwerk-Spezifika
+## 🇩🇪 Deutsche Handwerk-Spezifika (Quick Reference)
 
 ### Compliance-Anforderungen
 - **DSGVO**: Art. 6, 15, 17, 20 (Einwilligung, Auskunft, Löschung, Portabilität)
 - **GoBD**: Aufbewahrungspflichten für digitale Belege
 - **VOB**: Vergabe- und Vertragsordnung für Bauleistungen
 
-### Deutsche Datenformate
+### Wichtigste Datenformate
 
-#### Zahlen & Währung
 ```python
-# Preise: 1.234,56 € (Punkt Tausender, Komma Dezimal)
+# Zahlen & Währung: 1.234,56 € (Punkt Tausender, Komma Dezimal)
 def parse_german_currency(amount: str) -> Decimal:
     return Decimal(amount.replace('.', '').replace(',', '.'))
 
-# Beispiel: "1.250,50 €" → Decimal("1250.50")
-```
-
-#### Datums-Formate
-```python
-# DD.MM.YYYY (deutsches Standard-Format)
+# Datum: DD.MM.YYYY
 DATE_FORMAT = 'd.m.Y'
-DATETIME_FORMAT = 'd.m.Y H:i'
 TIME_ZONE = 'Europe/Berlin'
 LANGUAGE_CODE = 'de-de'
-```
 
-#### Mengeneinheiten
-```python
+# Mengeneinheiten
 DEUTSCHE_EINHEITEN = {
     'm²': 'Quadratmeter',
-    'lfm': 'Laufende Meter', 
+    'lfm': 'Laufende Meter',
     'Stk': 'Stück',
     'kg': 'Kilogramm',
     'h': 'Stunden (Arbeit)'
 }
 ```
 
-### Holzarten & Handwerks-Terminologie
+### Handwerks-Terminologie (Basis)
 
 ```python
-# extraction/services/ner_service.py - Wichtige Vokabular-Listen
-
-HOLZARTEN = {
-    'eiche': {'kategorie': 'hartholz', 'faktor': 1.3},
-    'buche': {'kategorie': 'hartholz', 'faktor': 1.2},
-    'kiefer': {'kategorie': 'weichholz', 'faktor': 0.9},
-    'fichte': {'kategorie': 'weichholz', 'faktor': 0.8}
+# Wichtigste Holzarten & Faktoren
+HOLZARTEN_BASIC = {
+    'eiche': 1.3,    # Hartholz, teuer
+    'buche': 1.2,    # Hartholz
+    'kiefer': 0.9,   # Weichholz
+    'fichte': 0.8    # Weichholz, günstig
 }
 
-KOMPLEXITÄTS_FAKTOREN = {
-    'gedrechselt': 1.25,
+# Komplexität
+KOMPLEXITÄTS_FAKTOREN_BASIC = {
     'gefräst': 1.15,
+    'gedrechselt': 1.25,
     'geschnitzt': 1.5,
-    'handgeschnitzt': 2.0
+    'hand_geschnitzt': 2.0
 }
 
-OBERFLÄCHEN_FAKTOREN = {
-    'lackiert': 1.15,
+# Oberflächen
+OBERFLÄCHEN_FAKTOREN_BASIC = {
+    'naturbelassen': 1.0,
     'geölt': 1.10,
-    'gewachst': 1.08,
-    'naturbelassen': 1.0
+    'lackiert': 1.15,
+    'klavierlack': 1.6  # Premium
 }
 ```
+
+**📚 Vollständige Listen:** Siehe `.claude/guides/german-handwerk-reference.md` für:
+- Alle Holzarten mit Eigenschaften & Verwendung
+- Detaillierte Komplexitäts-Multiplikatoren
+- Oberflächenbearbeitungs-Details
+- GAEB-Begriffe & VOB-Standards
+- NER Entity Labels
 
 ---
 
@@ -156,17 +145,17 @@ def extract_document(
 ) -> Dict[str, any]:
     """
     Extrahiert strukturierte Daten aus deutschen Bau-Dokumenten.
-    
+
     Args:
         file_path: Pfad zur PDF/GAEB-Datei
         language: Sprache für OCR (default: 'de')
-        
+
     Returns:
         Dict mit extracted_data, confidence_scores, processing_time
-        
+
     Raises:
         DocumentProcessingError: Bei OCR/NER Fehlern
-        
+
     Example:
         >>> result = extract_document("rechnung.pdf")
         >>> print(result['confidence_scores'])
@@ -196,7 +185,9 @@ handwerk_analyzer/
 │   ├── services/          # ✅ Business Logic HIER
 │   │   ├── ocr_service.py
 │   │   ├── ner_service.py
-│   │   └── gaeb_service.py
+│   │   ├── gemini_agent_service.py
+│   │   ├── calculation_engine.py
+│   │   └── integrated_pipeline.py
 │   └── models.py          # ❌ KEINE Business Logic
 ├── api/                   # REST API Layer
 ├── core/
@@ -220,7 +211,7 @@ pytest --cov=. --cov-report=html --cov-fail-under=80
 
 # Test-Pyramide:
 # - 70-80% Unit Tests
-# - 15-20% Integration Tests  
+# - 15-20% Integration Tests
 # - 5-10% E2E Tests
 ```
 
@@ -257,8 +248,7 @@ def test_ocr_extraction(mock_ocr):
     mock_ocr.return_value.ocr.return_value = [
         [[[0, 0], [100, 30]], ['Rechnung Nr.: RE-2024-001', 0.95]]
     ]
-    
-    # Test logic hier
+
     result = ocr_service.process_pdf("test.pdf")
     assert 'Rechnung Nr.: RE-2024-001' in result.full_text
     assert result.confidence > 0.9
@@ -266,109 +256,57 @@ def test_ocr_extraction(mock_ocr):
 
 ---
 
-## 🚀 Häufige Entwicklungsaufgaben
+## 🚀 Häufige Entwicklungsaufgaben (Quick Prompts)
 
-### 1. Neues OCR-Feature implementieren
+### 1. Neues OCR-Feature
 
-**Claude Code Prompt Template:**
 ```
 Implementiere ein neues OCR-Feature für das German Handwerk System.
 
 Kontext:
 - File: extraction/services/ocr_service.py
-- Aktueller Stand: [beschreibe current state]
-- Neue Anforderung: [specific requirement]
-
-Deutsche Anforderungen:
-- Umlaute (ä,ö,ü,ß) korrekt behandeln
-- Deutsche Zahlenformate (1.234,56)
+- Deutsche Anforderungen: Umlaute (ä,ö,ü,ß), Zahlenformate (1.234,56)
 - Performance: <2 Sekunden pro A4-Seite
 
 Implementierung:
 1. Erweitere GermanHandwerkOCRService um [functionality]
-2. Füge Unit Tests mit Mock PaddleOCR hinzu
-3. Dokumentiere neue Parameter in docstring
-4. Update CHANGELOG.md mit Änderungen
-
-Code Style: Service Layer Pattern, Type Hints, Comprehensive Docstrings
-Testing: pytest mit fixtures aus tests/fixtures/german_documents.py
-```
-
-### 2. GAEB XML Parser erweitern
-
-**Claude Code Prompt Template:**
-```
-Erweitere den GAEB XML Parser für das German Handwerk System.
-
-Kontext:
-- File: extraction/services/gaeb_service.py
-- Standard: GAEB DA XML 3.3
-- Neue Requirements: [specify what to add]
-
-Deutsche Bau-Standards:
-- VOB-konforme Leistungsbeschreibungen
-- Deutsche Mengeneinheiten (m², lfm, Stk)
-- Preisstrukturen (Netto/Brutto, 19% MwSt)
-
-Implementierung:
-1. Erweitere GAEBService.parse_gaeb_xml()
-2. Füge Validierung für deutsche Standards hinzu
-3. Error Handling für malformed XML
-4. Unit Tests mit echten GAEB Beispiel-Dateien
-5. Deutsche Lokalisierung der Fehlermeldungen
+2. Unit Tests mit Mock PaddleOCR
+3. Dokumentiere in docstring
+4. Update CHANGELOG.md
 
 Code Style: Service Layer Pattern, Type Hints
-Testing: Nutze tests/fixtures/sample_gaeb.xml
 ```
 
-### 3. Django Migration erstellen
+### 2. Django Migration
 
-**Claude Code Prompt Template:**
 ```
 Erstelle eine Django Migration für das German Handwerk System.
 
 Kontext:
 - Aktuelle Models: documents/models.py
-- Änderung: [describe change needed]
 - DSGVO Compliance: Audit-Felder erforderlich
 
 Deutsche Requirements:
-- created_at/updated_at Timestamps (DSGVO Audit)
-- retention_until Feld für automatische Löschung
+- created_at/updated_at Timestamps
+- retention_until für automatische Löschung
 - Encryption Support für sensitive Daten
-
-Implementierung:
-1. Analysiere aktuelle Model-Struktur
-2. Erstelle optimale Migration mit Indexes
-3. DSGVO-konforme Felder ergänzen
-4. Teste Migration up/down paths
-5. Dokumentiere Änderungen in .claude/CHANGELOG.md
 
 Verwende deutsche Feldnamen wo sinnvoll.
 ```
 
-### 4. REST API Endpoint hinzufügen
+### 3. REST API Endpoint
 
-**Claude Code Prompt Template:**
 ```
-Erstelle einen neuen REST API Endpoint für das German Handwerk System.
+Erstelle einen neuen REST API Endpoint.
 
 Kontext:
 - File: api/v1/views.py
-- Neue Funktionalität: [describe endpoint purpose]
 - Authentication: Token-based
 
 Deutsche API Standards:
 - Fehlermeldungen auf Deutsch
 - Deutsche Feldnamen in JSON responses
 - DSGVO-konform (keine PII in Logs)
-
-Implementierung:
-1. Erstelle Serializer mit deutschen Feldnamen
-2. Implementiere View mit Error Handling
-3. Füge Rate Limiting hinzu (100 req/hour)
-4. API Tests mit deutscher Test-Daten
-5. OpenAPI Documentation (Swagger)
 
 Response Format:
 {
@@ -378,79 +316,7 @@ Response Format:
 }
 ```
 
----
-
-## 📦 Repository-Management
-
-### Vor neuer Entwicklung - Cleanup Check
-
-```bash
-#!/bin/bash
-# Führe diesen Check vor jeder neuen Feature-Entwicklung aus
-
-# 1. Repository-Status prüfen
-git status
-git log --oneline -5
-
-# 2. Ungenutzte Files identifizieren
-vulture . --min-confidence 80 > unused_code_report.txt
-
-# 3. Test Coverage prüfen
-pytest --cov=. --cov-report=term-missing --cov-fail-under=80
-
-# 4. Code Quality Check
-black --check .
-mypy .
-```
-
-### Archivierungs-Workflow
-
-**Wann archivieren?**
-- Code nicht verwendet seit 30+ Tagen
-- Experimentelle Features wurden verworfen
-- Alte Migration-Files (>6 Monate)
-- Veraltete API-Versionen
-- Test-Files für entfernte Features
-
-**Archivierungs-Prozess:**
-
-```bash
-# 1. Erstelle Archiv-Ordner für aktuellen Monat
-ARCHIVE_DATE=$(date +%Y-%m)
-mkdir -p archive/$ARCHIVE_DATE/{deprecated_code,old_migrations,experimental}
-
-# 2. Verschiebe Files mit Git (behält History)
-git mv old_feature.py archive/$ARCHIVE_DATE/deprecated_code/
-git mv 0001_old_migration.py archive/$ARCHIVE_DATE/old_migrations/
-
-# 3. Dokumentiere Archivierung
-cat >> archive/$ARCHIVE_DATE/CHANGES.md << EOF
-# Archivierung $(date +%Y-%m-%d)
-
-## Deprecated Code
-- \`old_feature.py\`: Ersetzt durch new_feature.py
-  - Grund: Performance-Verbesserung mit async processing
-  - Dependencies: Keine
-  - Migration: Siehe migration_guide.md
-
-## Old Migrations
-- \`0001_old_migration.py\`: Superseded durch 0025_consolidated.py
-  - Status: Safe to archive (>6 Monate alt)
-  - Rollback: Nicht mehr möglich
-EOF
-
-# 4. Commit mit klarer Message
-git add .
-git commit -m "archive: Move deprecated files to archive/$ARCHIVE_DATE
-
-- Moved unused views to deprecated_code/
-- Archived old migrations >6 months
-- See archive/$ARCHIVE_DATE/CHANGES.md for details"
-```
-
-### Automatische Archivierung (GitHub Actions)
-
-Siehe `.github/workflows/cleanup.yml` - Läuft monatlich am 1. um 02:00 Uhr
+**📚 Weitere Templates:** Siehe alte Version für GAEB Parser & komplexere Prompts
 
 ---
 
@@ -474,9 +340,6 @@ python manage.py loaddata fixtures/german_test_data.json
 
 # Development Server
 python manage.py runserver
-
-# Django Shell mit erweiterter Ausgabe
-python manage.py shell_plus
 
 # Tests ausführen
 pytest --cov=. --cov-report=html
@@ -503,168 +366,226 @@ gcloud logging read "resource.type=cloud_run_revision" --limit=50
 
 ---
 
-## 🔍 Debugging & Troubleshooting
+## 🐋 Docker Build & Deployment
 
-### Häufige Probleme & Lösungen
+### ⚠️ KRITISCHE REGELN für Docker
 
-#### 1. OCR schlechte Qualität für deutsche Texte
+```
+1. NIEMALS Features deaktivieren oder optional machen um Probleme zu umgehen
+2. NIEMALS OCR-Funktionalität entfernen - es ist Core-Feature
+3. IMMER Root Cause fixen, keine Workarounds
+4. VOR Änderungen an funktionierendem Code: User fragen und Trade-offs erklären
+5. ALLE 169+ Tests müssen nach Fix weiterhin bestehen
+6. Target-Umgebung ist Google Cloud Run (headless, kein GUI)
+```
+
+### Docker OpenCV/NumPy Fix (Quick Reference)
+
+**Problem:** OpenCV 4.6.x ist binär inkompatibel mit NumPy 2.x
+
+**Lösung (3 Schritte):**
+
+1. **Constraints File:** `requirements/constraints.txt`
+   ```txt
+   numpy>=1.21.0,<2.0.0
+   ```
+
+2. **ML Requirements:** `requirements/ml.txt`
+   ```txt
+   opencv-python-headless==4.6.0.66  # WICHTIG: headless für Cloud Run
+   paddleocr==2.7.0.3
+   # NumPy wird über constraints gesteuert
+   ```
+
+3. **Dockerfile:** NumPy ZUERST installieren
+   ```dockerfile
+   RUN pip install --no-cache-dir "numpy==1.26.4"
+   RUN pip install --no-cache-dir "opencv-python-headless==4.6.0.66" --no-deps
+   RUN pip install --no-cache-dir -c /app/requirements/constraints.txt -r /app/requirements/ml.txt
+   ```
+
+### Docker Build Commands
+
+```bash
+# Cleanup & Build
+docker-compose down && docker system prune -f
+docker-compose build --no-cache web
+docker-compose up -d
+
+# Version Check
+docker-compose exec web pip list | grep -E "numpy|opencv|paddle"
+# Erwartete Ausgabe:
+# numpy                    1.26.4
+# opencv-python-headless   4.6.0.66
+# paddleocr                2.7.0.3
+
+# Test Suite
+docker-compose exec web pytest tests/ -v
+```
+
+**📚 Detaillierter Guide:** Siehe `.claude/claude code docker build guide.md` für:
+- Vollständiges Dockerfile
+- Troubleshooting Steps
+- Build Validierungs-Checkliste
+- Erfolgreiche Build-Ausgabe
+
+---
+
+## 🔍 Debugging & Troubleshooting (Top 3 Probleme)
+
+### 1. OCR schlechte Qualität für deutsche Texte
 
 **Problem:** PaddleOCR erkennt deutsche Umlaute falsch
 
-**Lösung:**
+**Quick Fix:**
 ```python
-# Preprocessing hinzufügen vor OCR
 from PIL import Image, ImageEnhance
 
 def preprocess_for_german_ocr(image_path: str) -> Image:
     img = Image.open(image_path)
-    
-    # Contrast enhancement für deutsche Fraktur-Schrift
     enhancer = ImageEnhance.Contrast(img)
     img = enhancer.enhance(2.0)
-    
     return img
 
-# OCR mit deutschen Modellen
 ocr = PaddleOCR(
-    lang='german',  # Explizit deutsche Modelle
+    lang='german',
     use_gpu=False,
-    show_log=False,
-    enable_mkldnn=True,  # CPU-Optimierung
-    use_dilation=True    # Bessere Erkennung für kleine Texte
+    enable_mkldnn=True,
+    use_dilation=True
 )
 ```
 
-#### 2. GAEB XML Encoding-Fehler
+### 2. GAEB XML Encoding-Fehler
 
-**Problem:** Umlaute werden falsch dargestellt
+**Problem:** Umlaute falsch dargestellt
 
-**Lösung:**
+**Quick Fix:**
 ```python
 import xml.etree.ElementTree as ET
 
 def parse_gaeb_safe(file_path: str) -> ET.Element:
-    """Sicheres Parsen mit Encoding-Fallback"""
-    
-    # Erst UTF-8 versuchen
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        return ET.fromstring(content)
+            return ET.fromstring(f.read())
     except UnicodeDecodeError:
         # Fallback für alte Windows-1252 GAEB Files
         with open(file_path, 'r', encoding='windows-1252') as f:
-            content = f.read()
-        return ET.fromstring(content)
+            return ET.fromstring(f.read())
 ```
 
-#### 3. Performance-Probleme bei großen PDFs
+### 3. Performance-Probleme bei großen PDFs
 
 **Problem:** OCR dauert >10 Sekunden pro Seite
 
-**Lösung:**
+**Quick Fix:**
 ```python
-# Batch Processing mit Progress Tracking
+from concurrent.futures import ThreadPoolExecutor
+
 def process_large_pdf(pdf_path: Path) -> OCRResult:
-    """Optimierte Verarbeitung für große PDFs"""
-    
     images = convert_from_path(
         pdf_path,
-        dpi=300,  # Nicht höher für Geschwindigkeit
+        dpi=300,  # Nicht höher
         fmt='jpeg',
-        thread_count=2  # Memory-Optimierung
+        thread_count=2
     )
-    
-    # Parallel processing für Seiten
-    from concurrent.futures import ThreadPoolExecutor
-    
+
     with ThreadPoolExecutor(max_workers=2) as executor:
         results = list(executor.map(process_page, images))
-    
+
     return combine_results(results)
 ```
 
----
-
-## 📊 Performance-Benchmarks
-
-### Erwartete Performance-Ziele
-
-```python
-# Phase 1 MVP
-OCR_TIME_PER_PAGE = 2.0    # Sekunden pro A4-Seite
-NER_TIME_PER_1000_WORDS = 0.2  # Sekunden
-API_RESPONSE_TIME = 0.5    # Sekunden für List-Endpoints
-MAX_MEMORY_USAGE = 512     # MB (Cloud Run Limit)
-
-# Phase 2 Production
-ASYNC_THROUGHPUT = 10-20   # Dokumente pro Minute
-SUCCESS_RATE = 0.95        # 95% erfolgreich verarbeitet
-OCR_CONFIDENCE_TARGET = 0.85  # Minimum Confidence Score
-```
-
-### Performance Monitoring
-
-```python
-# core/monitoring/performance.py
-
-import time
-import logging
-from functools import wraps
-
-logger = logging.getLogger(__name__)
-
-def monitor_performance(threshold_seconds: float = 2.0):
-    """Decorator für Performance-Monitoring"""
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            start = time.time()
-            result = func(*args, **kwargs)
-            duration = time.time() - start
-            
-            if duration > threshold_seconds:
-                logger.warning(
-                    f"{func.__name__} took {duration:.2f}s "
-                    f"(threshold: {threshold_seconds}s)"
-                )
-            
-            return result
-        return wrapper
-    return decorator
-
-# Usage
-@monitor_performance(threshold_seconds=2.0)
-def process_document(doc_id: str) -> Result:
-    pass
-```
+**📚 Weitere Probleme:** Siehe `.claude/guides/debugging-troubleshooting-guide.md` für:
+- Fraktur-Schrift OCR
+- Multi-Column Layout
+- Database Performance
+- Memory Issues
+- Redis Connection Problems
+- Test Debugging
 
 ---
 
-## 🔗 Wichtige Ressourcen
+## 💰 Phase 2 & Phase 3 Services (Übersicht)
 
-### Interne Dokumentation
-- `.claude/phase-guides/phase1-mvp.md` - MVP Development Guide
-- `.claude/phase-guides/phase2-production.md` - Production Hardening
-- `.claude/phase-guides/deployment-guide.md` - GCP Infrastructure
-- `.claude/CHANGELOG.md` - Alle Projekt-Änderungen
+### Phase 2: Agentic RAG Services
 
-### Externe Standards
-- [GAEB DA XML 3.3 Spezifikation](https://www.gaeb.de)
-- [DSGVO Art. 6, 15, 17, 20](https://dsgvo-gesetz.de)
-- [VOB/A & VOB/B](https://www.deutsche-vergabe.de)
-- [GoBD](https://www.bundesfinanzministerium.de/gobd)
+**Implementierte Services:**
+1. **GeminiAgentService** - LLM Enhancement mit Gemini 1.5 Flash
+2. **MemoryService** - Dual-Layer Memory (Redis + PostgreSQL)
+3. **ConfidenceRouter** - 4-Tier Intelligent Routing
+4. **CostTracker** - Budget Management
 
-### Python Libraries Dokumentation
-- [PaddleOCR Docs](https://github.com/PaddlePaddle/PaddleOCR)
-- [spaCy German Models](https://spacy.io/models/de)
-- [Django 5.0 Release Notes](https://docs.djangoproject.com/en/5.0/)
+**Routing-Tiers:**
+- `AUTO_ACCEPT` (0.92+) → $0 cost
+- `AGENT_VERIFY` (0.80-0.92) → ~$0.0001
+- `AGENT_EXTRACT` (0.70-0.80) → ~$0.00025
+- `HUMAN_REVIEW` (<0.70) → $0 cost
+
+**📚 Complete API:** Siehe `.claude/guides/phase2-agentic-services-api.md` für:
+- Vollständige Methodensignaturen
+- Code-Beispiele
+- Integration Workflows
+- Testing
+
+### Phase 3: Betriebskennzahlen System
+
+**Implementierte Services:**
+1. **CalculationEngine** - 8-step pricing mit TIER 1/2/3
+2. **PatternAnalyzer** - Failure detection & root cause analysis
+3. **SafeKnowledgeBuilder** - Validated fix deployment
+4. **IntegratedPipeline** - Complete orchestration
+
+**TIER System:**
+- **TIER 1:** Global Standards (Holzarten, Oberflächen, Komplexität)
+- **TIER 2:** Company Metrics (Labor rates, Overhead, Margin)
+- **TIER 3:** Dynamic (Seasonal, Customer discounts)
+
+**📚 Code Examples:** Siehe `.claude/guides/phase3-betriebskennzahlen-examples.md` für:
+- Detaillierte Pricing-Szenarien
+- Pattern Analysis Workflows
+- Safe Deployment Examples
+- Complete Integration Patterns
+
+---
+
+## 📦 Repository-Management
+
+### Vor neuer Entwicklung - Cleanup Check
+
+```bash
+# 1. Repository-Status
+git status && git log --oneline -5
+
+# 2. Test Coverage
+pytest --cov=. --cov-report=term-missing --cov-fail-under=80
+
+# 3. Code Quality
+black --check . && mypy .
+```
+
+### Archivierung (Wann?)
+
+- Code nicht verwendet seit 30+ Tagen
+- Experimentelle Features wurden verworfen
+- Alte Migration-Files (>6 Monate)
+- Veraltete API-Versionen
+
+**Prozess:**
+```bash
+ARCHIVE_DATE=$(date +%Y-%m)
+mkdir -p archive/$ARCHIVE_DATE/{deprecated_code,old_migrations}
+
+git mv old_feature.py archive/$ARCHIVE_DATE/deprecated_code/
+
+# Dokumentiere in archive/$ARCHIVE_DATE/CHANGES.md
+git commit -m "archive: Move deprecated files to archive/$ARCHIVE_DATE"
+```
 
 ---
 
 ## 📝 Änderungs-Tracking
 
-**WICHTIG:** Alle Verzeichnis-Änderungen MÜSSEN dokumentiert werden!
+**WICHTIG:** Alle Änderungen MÜSSEN dokumentiert werden!
 
 ### Bei jeder Änderung:
 
@@ -675,58 +596,19 @@ def process_document(doc_id: str) -> Result:
 **Template für CHANGELOG-Einträge:**
 
 ```markdown
-## [2025-11-20] - Feature: GAEB XML Integration
+## [2025-11-27] - Feature: GAEB XML Integration
 
 ### Added
 - `extraction/services/gaeb_service.py` - GAEB 3.3 Parser
 - `tests/fixtures/sample_gaeb.xml` - Test-Daten
-- GAEB-specific fields in `documents/models.py`
 
 ### Changed
 - `extraction/services/base_service.py` - Extended for GAEB support
-- `api/v1/serializers.py` - Added GAEB response format
-
-### Deprecated
-- `extraction/legacy_parser.py` → Moved to `archive/2025-11/deprecated_code/`
 
 ### Performance
 - GAEB parsing: <5 Sekunden für Standard-LV
 - Memory: <256MB für 100-Position LV
-
-### DSGVO Impact
-- Keine PII in GAEB-Daten (nur Projekt-Metadaten)
-- Standard retention policy applies (365 Tage)
 ```
-
----
-
-## 🎯 Nächste Schritte
-
-### Aktueller Task-Status
-
-**Phase 2 Production - Woche 7/10:**
-- ✅ Cloud Tasks Async Processing
-- ✅ GAEB XML Integration
-- 🚧 Enterprise Security & DSGVO
-- ⏳ Performance Optimization
-- ⏳ Blue-Green Deployment
-
-### Prioritäten für diese Woche
-
-1. **Enterprise Security Implementation**
-   - Encryption Service (AES-256)
-   - DSGVO Compliance Service
-   - Enhanced Audit Logging
-
-2. **Performance Optimization**
-   - Caching Strategy
-   - Database Tuning
-   - Custom Metrics
-
-3. **Monitoring Setup**
-   - Sentry Integration
-   - Business KPI Dashboard
-   - Alerting Policies
 
 ---
 
@@ -766,7 +648,54 @@ git commit -m "feat(gaeb): Add GAEB XML 3.3 parser
 
 ---
 
+## 🔗 Wichtige Ressourcen
+
+### Interne Dokumentation
+
+**Guide-Dateien (neu):**
+- `.claude/guides/german-handwerk-reference.md` - Vollständige Terminologie
+- `.claude/guides/phase2-agentic-services-api.md` - Phase 2 API Docs
+- `.claude/guides/phase3-betriebskennzahlen-examples.md` - Phase 3 Code-Beispiele
+- `.claude/guides/debugging-troubleshooting-guide.md` - Advanced Debugging
+
+**Projekt-Dokumentation:**
+- `.claude/CHANGELOG.md` - Alle Projekt-Änderungen
+- `.claude/claude code docker build guide.md` - Docker Build Details
+- `PHASE3_INTEGRATION_SUMMARY.md` - Phase 3 Architecture
+- `PHASE3_TEST_VALIDATION.md` - Test Coverage Report
+
+### Externe Standards
+- [GAEB DA XML 3.3 Spezifikation](https://www.gaeb.de)
+- [DSGVO Art. 6, 15, 17, 20](https://dsgvo-gesetz.de)
+- [VOB/A & VOB/B](https://www.deutsche-vergabe.de)
+- [PaddleOCR Docs](https://github.com/PaddlePaddle/PaddleOCR)
+- [Django 5.0 Release Notes](https://docs.djangoproject.com/en/5.0/)
+
+---
+
+## 🎯 Nächste Schritte
+
+### Aktueller Task-Status
+
+**Phase 3: Betriebskennzahlen & Integration - ✅ COMPLETED**
+- ✅ 8 Models (TIER 1/2/3)
+- ✅ 4 Services (CalculationEngine, PatternAnalyzer, SafeKnowledgeBuilder, IntegratedPipeline)
+- ✅ 11 Django Admin Classes
+- ✅ 169+ Unit & Integration Tests
+- ✅ Complete Integration Documentation
+
+### Nächste Phase: Phase 4 - APIs & Dashboard (Planned)
+
+**Prioritäten:**
+1. **REST API Layer** - Extraction, Pattern, Knowledge, Pricing endpoints
+2. **Admin Dashboard UI** - Pattern review, Fix approval, Deployment management
+3. **Monitoring & Analytics** - Extraction quality, Pattern frequency, Cost analysis
+
+---
+
 **Dieses CLAUDE.md ist ein lebendes Dokument. Update es bei jeder größeren Änderung!**
 
-**Letzte Aktualisierung:** 2025-11-26
-**Nächster Review:** Während Phase 2 Meilensteine
+**Letzte Aktualisierung:** 2025-11-27
+**Version:** 2.1.0 - Umstrukturiert mit Guide-Files
+**Status:** Ready for Docker deployment, Django test runner, production validation
+**Nächste Phase:** Phase 4 - REST APIs & Admin Dashboard (Planned)
