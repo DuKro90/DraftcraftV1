@@ -14,6 +14,11 @@ from .batch_views import (
     BatchViewSet,
     BatchDocumentViewSet,
 )
+from .health_views import (
+    health_check,
+    health_ready,
+    health_startup,
+)
 
 app_name = 'v1'
 
@@ -29,5 +34,11 @@ router.register(r'batch-documents', BatchDocumentViewSet, basename='batch-docume
 router.register(r'health', HealthCheckViewSet, basename='health')
 
 urlpatterns = [
+    # Cloud Run Health Checks (function-based views for fast response)
+    path('health/', health_check, name='health-check'),
+    path('health/ready/', health_ready, name='health-ready'),
+    path('health/startup/', health_startup, name='health-startup'),
+
+    # REST API Routes
     path('', include(router.urls)),
 ]

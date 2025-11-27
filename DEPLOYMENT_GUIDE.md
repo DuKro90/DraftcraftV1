@@ -262,6 +262,8 @@ python manage.py showmigrations
 
 ## GCP Cloud Run Deployment
 
+**🌍 Region:** This guide uses `europe-west3` (Frankfurt, Germany) for GDPR compliance and low-latency access from Europe. All GCP resources (Cloud Run, Cloud SQL, Cloud Storage, Cloud Tasks) should be in the same region for optimal performance.
+
 ### Prerequisites
 
 - **Google Cloud Project** - [Create](https://console.cloud.google.com/)
@@ -278,7 +280,7 @@ python manage.py showmigrations
 ```bash
 # Set project
 PROJECT_ID="your-project-id"
-REGION="europe-west1"  # Or your preferred region
+REGION="europe-west3"  # Or your preferred region
 
 gcloud config set project $PROJECT_ID
 gcloud config set compute/region $REGION
@@ -550,7 +552,7 @@ except Exception as e:
 
 ```bash
 # View Cloud Run logs
-gcloud run logs read draftcraft --region=europe-west1
+gcloud run logs read draftcraft --region=europe-west3
 
 # With filtering
 gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=draftcraft" --limit=50

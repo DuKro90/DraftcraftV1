@@ -1,0 +1,118 @@
+# This file specifies files that are *not* uploaded to Google Cloud
+# using gcloud. It follows the same syntax as .gitignore
+
+# Git directories
+.git/
+.gitignore
+.gitattributes
+
+# Claude Code workspace
+.claude/
+
+# Documentation (not needed in production)
+docs/
+*.md
+!README.md
+
+# Tests (not needed in production runtime)
+**/tests/
+**/*_test.py
+**/test_*.py
+pytest.ini
+.pytest_cache/
+
+# Development files
+.env
+.env.local
+.env.development
+.env.*.local
+backend/.env
+backend/.env.local
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node.js (if frontend added later)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build artifacts (created at runtime)
+*.egg-info/
+dist/
+build/
+
+# Local SQLite databases (use Cloud SQL in production)
+*.sqlite3
+*.db
+
+# Logs
+*.log
+logs/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Media files (uploaded to GCS, not in container)
+media/
+staticfiles/
+backend/media/
+backend/staticfiles/
+
+# Docker files (used only during build)
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+
+# CI/CD files (not needed at runtime)
+.github/
+cloudbuild.yaml
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Sensitive files (should be in Secret Manager)
+*.pem
+*.key
+*.crt
+*.p12
+credentials.json
+service-account*.json

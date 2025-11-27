@@ -6,6 +6,16 @@ Sensitive values come from environment variables.
 
 from .base import *  # noqa
 import os
+import logging
+
+# Validate environment variables before loading settings
+from .validators import validate_production_environment
+try:
+    validate_production_environment()
+except Exception as e:
+    # Log and re-raise - fail fast if critical vars missing
+    logging.error(f"Environment validation failed: {e}")
+    raise
 
 # Production: Disable debug
 DEBUG = False
