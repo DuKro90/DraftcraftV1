@@ -95,6 +95,7 @@ class CalculationEngine:
         quantity: Optional[int] = None,
         customer_type: str = 'neue_kunden',
         breakdown: bool = True,
+        extraction_result=None,
     ) -> Dict[str, Any]:
         """
         Calculate complete project price through 8-step workflow.
@@ -192,12 +193,42 @@ class CalculationEngine:
                 breakdown_data, warnings
             )
 
+            # Phase 4C: Multi-Material Check
+            from documents.schemas.multi_material_schema import is_multi_material_extraction
+            from extraction.services.multi_material_calculation_service import calculate_multi_material_cost
+
+            if is_multi_material_extraction(extracted_data):
+                logger.info("Multi-material extraction detected, calculating separate costs")
+                multi_result = calculate_multi_material_cost(self.user, extracted_data)
+                material_cost = Decimal(str(multi_result['total_material_cost']))
+                breakdown_data['multi_material_breakdown'] = multi_result
+            else:
+                material_cost = base_price
+
+            # Phase 4C: Pauschalen (if extraction_result provided)
+            pauschalen_result = {'pauschalen': [], 'total': 0.0}
+            if extraction_result:
+                from documents.services.pauschale_calculation_service import PauschaleCalculationService
+                pauschale_service = PauschaleCalculationService(self.user, extraction_result)
+                pauschalen_result = pauschale_service.calculate_all_pauschalen(
+                    auftragswert=final_price,
+                    context={
+                        'auftragswert': final_price,
+                        'distanz_km': extracted_data.get('distanz_km', 0),
+                        'montage_stunden': extracted_data.get('labor_hours', 0),
+                        'material_menge': extracted_data.get('material_quantity', 0),
+                    }
+                )
+                final_price += Decimal(str(pauschalen_result['total']))
+                logger.info(f"Applied {len(pauschalen_result['pauschalen'])} Pauschalen, total: {pauschalen_result['total']} EUR")
+
             return {
                 'total_price_eur': float(final_price),
                 'base_price_eur': float(base_price),
-                'material_price_eur': float(base_price),
+                'material_price_eur': float(material_cost),
                 'labor_price_eur': float(labor_price),
                 'final_price_eur': float(final_price),
+                'pauschalen': pauschalen_result,
                 'breakdown': breakdown_data if breakdown else {},
                 'warnings': warnings,
                 'tiers_applied': tiers_applied,

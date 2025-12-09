@@ -11,6 +11,7 @@ from documents.pattern_models import ExtractionFailurePattern
 from extraction.services.calculation_engine import CalculationEngine, CalculationError
 from extraction.services.pattern_analyzer import PatternAnalyzer
 from extraction.services.knowledge_builder import SafeKnowledgeBuilder, KnowledgeBuilderException
+from extraction.services.explanation_service import ExplanationService
 
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,7 @@ class IntegratedExtractionPipeline:
             self.calculator = CalculationEngine(user)
             self.pattern_analyzer = PatternAnalyzer(user)
             self.knowledge_builder = SafeKnowledgeBuilder(user)
+            self.explainer = ExplanationService(user)  # Phase 4A: Transparency
         except Exception as e:
             raise IntegratedPipelineException(
                 f"Cannot initialize pipeline for user {user.username}: {str(e)}"
@@ -65,7 +67,8 @@ class IntegratedExtractionPipeline:
         self,
         extraction_result: ExtractionResult,
         apply_knowledge_fixes: bool = True,
-        calculate_pricing: bool = True
+        calculate_pricing: bool = True,
+        create_explanation: bool = True  # Phase 4A: Create transparent explanation
     ) -> Dict[str, Any]:
         """
         Complete processing of an extraction result.
@@ -74,18 +77,21 @@ class IntegratedExtractionPipeline:
         1. Analyze patterns in extracted data
         2. Apply safe knowledge fixes (if available and approved)
         3. Calculate pricing (if configured)
-        4. Return comprehensive result with all enrichments
+        4. Create transparent explanation (Phase 4A - if pricing calculated)
+        5. Return comprehensive result with all enrichments
 
         Args:
             extraction_result: ExtractionResult to process
             apply_knowledge_fixes: Apply validated knowledge fixes (default True)
             calculate_pricing: Calculate project pricing (default True)
+            create_explanation: Create transparent explanation (default True, Phase 4A)
 
         Returns:
             Dict with:
                 - extraction (dict): Original extraction result
                 - patterns (dict): Detected patterns and analysis
                 - pricing (dict or None): Calculated pricing
+                - explanation (dict or None): Transparent explanation (Phase 4A)
                 - knowledge_applied (list): Applied fixes
                 - enrichments_timestamp (str): ISO timestamp
                 - processing_notes (list): Warnings/info messages
@@ -93,6 +99,7 @@ class IntegratedExtractionPipeline:
         notes = []
         patterns_result = None
         pricing_result = None
+        explanation_data = None  # Phase 4A: Transparent explanation
         knowledge_applied = []
 
         try:
@@ -130,9 +137,41 @@ class IntegratedExtractionPipeline:
                     logger.warning(f"Unexpected error during pricing: {str(e)}")
                     notes.append(f"Pricing calculation error: {str(e)}")
 
+            # Step 4: Create transparent explanation (Phase 4A)
+            if create_explanation and pricing_result:
+                try:
+                    explanation = self.explainer.create_explanation(
+                        extraction_result,
+                        pricing_result
+                    )
+                    explanation_data = {
+                        'confidence_level': explanation.confidence_level,
+                        'confidence_score': float(explanation.confidence_score),
+                        'similar_projects': explanation.similar_projects_count,
+                        'user_average': float(explanation.user_average_for_type) if explanation.user_average_for_type else None,
+                        'deviation_percent': float(explanation.deviation_from_average_percent) if explanation.deviation_from_average_percent else None,
+                        'factors': [
+                            {
+                                'name': f.factor_name,
+                                'category': f.factor_category,
+                                'amount': float(f.amount_eur),
+                                'impact_percent': float(f.impact_percent),
+                                'explanation': f.explanation_text,
+                                'data_source': f.get_source_badge(),
+                                'adjustable': f.is_adjustable,
+                            }
+                            for f in explanation.factors.all()[:5]  # Top 5 factors for Progressive Disclosure
+                        ]
+                    }
+                    notes.append("Transparente Erklärung erstellt")
+                except Exception as e:
+                    logger.warning(f"Could not create explanation: {str(e)}")
+                    notes.append(f"Erklärung übersprungen: {str(e)}")
+
             logger.info(
                 f"Processed extraction {extraction_result.id} for user {self.user.username}. "
-                f"Patterns: {bool(patterns_result)}, Pricing: {bool(pricing_result)}"
+                f"Patterns: {bool(patterns_result)}, Pricing: {bool(pricing_result)}, "
+                f"Explanation: {bool(explanation_data)}"
             )
 
             return {
@@ -140,6 +179,7 @@ class IntegratedExtractionPipeline:
                 'extraction': self._serialize_extraction(extraction_result),
                 'patterns': patterns_result,
                 'pricing': pricing_result,
+                'explanation': explanation_data,  # Phase 4A: Transparent explanation
                 'knowledge_applied': knowledge_applied,
                 'enrichments_timestamp': timezone.now().isoformat(),
                 'processing_notes': notes,

@@ -1,0 +1,316 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: DraftCraft 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-03 12:00+0100\n"
+"PO-Revision-Date: 2025-12-03 12:00+0100\n"
+"Last-Translator: Auto-Generated\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Add"
+msgstr "Add"
+
+msgid "Advanced"
+msgstr "Advanced"
+
+msgid "Advanced Features"
+msgstr "Advanced Features"
+
+msgid "Analytics"
+msgstr "Analytics"
+
+msgid "Beginner"
+msgstr "Beginner"
+
+msgid "Browse"
+msgstr "Browse"
+
+msgid "Bulk Upload"
+msgstr "Bulk Upload"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Choose"
+msgstr "Choose"
+
+msgid "Completed"
+msgstr "Completed"
+
+msgid "Complexity Factor"
+msgstr "Complexity Factor"
+
+msgid "Complexity Factors"
+msgstr "Complexity Factors"
+
+msgid "Comprehensive guides and documentation"
+msgstr "Comprehensive guides and documentation"
+
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "Created"
+msgstr "Created"
+
+msgid "Created at"
+msgstr "Created at"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Data Import & Export"
+msgstr "Data Import & Export"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Difficulty"
+msgstr "Difficulty"
+
+msgid "Document"
+msgstr "Document"
+
+msgid "Documents"
+msgstr "Documents"
+
+msgid "Download"
+msgstr "Download"
+
+msgid "Download template"
+msgstr "Download template"
+
+msgid "Dry run"
+msgstr "Dry run"
+
+msgid "Easy"
+msgstr "Easy"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Excel/CSV File"
+msgstr "Excel/CSV File"
+
+msgid "Export"
+msgstr "Export"
+
+msgid "Extraction"
+msgstr "Extraction"
+
+msgid "Featured"
+msgstr "Featured"
+
+msgid "Feedback"
+msgstr "Feedback"
+
+msgid "File"
+msgstr "File"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Getting Started"
+msgstr "Getting Started"
+
+msgid "Hard"
+msgstr "Hard"
+
+msgid "Help"
+msgstr "Help"
+
+msgid "How-To Wiki"
+msgstr "How-To Wiki"
+
+msgid "Import"
+msgstr "Import"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Intermediate"
+msgstr "Intermediate"
+
+msgid "Invalid value"
+msgstr "Invalid value"
+
+msgid "Last month"
+msgstr "Last month"
+
+msgid "Last week"
+msgstr "Last week"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Master"
+msgstr "Master"
+
+msgid "Material"
+msgstr "Material"
+
+msgid "Materials"
+msgstr "Materials"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "Not helpful"
+msgstr "Not helpful"
+
+msgid "Pending"
+msgstr "Pending"
+
+msgid "Please enter a valid"
+msgstr "Please enter a valid"
+
+msgid "Popular"
+msgstr "Popular"
+
+msgid "Preview mode"
+msgstr "Preview mode"
+
+msgid "Price factor"
+msgstr "Price factor"
+
+msgid "Process"
+msgstr "Process"
+
+msgid "Processing"
+msgstr "Processing"
+
+msgid "Proposals"
+msgstr "Proposals"
+
+msgid "Published"
+msgstr "Published"
+
+msgid "Recent"
+msgstr "Recent"
+
+msgid "Related Articles"
+msgstr "Related Articles"
+
+msgid "Required field"
+msgstr "Required field"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Search Log"
+msgstr "Search Log"
+
+msgid "Seasonal Campaign"
+msgstr "Seasonal Campaign"
+
+msgid "Seasonal Campaigns"
+msgstr "Seasonal Campaigns"
+
+msgid "Select"
+msgstr "Select"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Surface Finish"
+msgstr "Surface Finish"
+
+msgid "Surface Finishes"
+msgstr "Surface Finishes"
+
+msgid "Template herunterladen"
+msgstr "Template herunterladen"
+
+msgid "This field is required"
+msgstr "This field is required"
+
+msgid "Time"
+msgstr "Time"
+
+msgid "Time factor"
+msgstr "Time factor"
+
+msgid "Today"
+msgstr "Today"
+
+msgid "Troubleshooting"
+msgstr "Troubleshooting"
+
+msgid "Unpublished"
+msgstr "Unpublished"
+
+msgid "Update existing entries"
+msgstr "Update existing entries"
+
+msgid "Updated"
+msgstr "Updated"
+
+msgid "Updated at"
+msgstr "Updated at"
+
+msgid "Upload"
+msgstr "Upload"
+
+msgid "Upload file"
+msgstr "Upload file"
+
+msgid "View"
+msgstr "View"
+
+msgid "Was this article helpful?"
+msgstr "Was this article helpful?"
+
+msgid "Welcome"
+msgstr "Welcome"
+
+msgid "Wiki Article"
+msgstr "Wiki Article"
+
+msgid "Wiki Articles"
+msgstr "Wiki Articles"
+
+msgid "Wiki Categories"
+msgstr "Wiki Categories"
+
+msgid "Wiki Category"
+msgstr "Wiki Category"
+
+msgid "Wood Type"
+msgstr "Wood Type"
+
+msgid "Wood Types"
+msgstr "Wood Types"
+
+msgid "Yes, helpful"
+msgstr "Yes, helpful"
+
+msgid "Yesterday"
+msgstr "Yesterday"
+
+msgid "views"
+msgstr "views"
+

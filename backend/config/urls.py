@@ -5,15 +5,30 @@ Main URL configuration for DraftCraft.
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from django.conf.urls.i18n import i18n_patterns
+from django.views.i18n import set_language
 
 from rest_framework.authtoken.views import obtain_auth_token
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["GET", "HEAD"])
+def health_check(request):
+    """Root health check for Docker healthcheck."""
+    return JsonResponse({"status": "healthy"})
 
 urlpatterns = [
+    # Docker Health Check (root level for container healthcheck)
+    path('health/', health_check, name='health'),
+
+    # Language switching
+    path('i18n/', include('django.conf.urls.i18n')),
+
     # Admin
     path('admin/', admin.site.urls),
 
-    # API Authentication
-    path('api/auth/token/', obtain_auth_token, name='api_token_auth'),
+    # API Authentication (Extended with Token Refresh, Registration, etc.)
+    path('api/auth/', include('api.v1.auth_urls', namespace='auth')),
 
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

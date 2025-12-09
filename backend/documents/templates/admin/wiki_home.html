@@ -1,0 +1,282 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .wiki-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .wiki-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .wiki-header h1 {
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+
+    .wiki-search {
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    .wiki-search input {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 25px;
+    }
+
+    .wiki-search input:focus {
+        outline: none;
+        border-color: #417690;
+    }
+
+    .wiki-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .wiki-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.3s;
+    }
+
+    .wiki-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .wiki-card h3 {
+        margin-top: 0;
+        color: #417690;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .wiki-card .icon {
+        font-size: 24px;
+    }
+
+    .wiki-card .article-list {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0 0;
+    }
+
+    .wiki-card .article-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .wiki-card .article-list li:last-child {
+        border-bottom: none;
+    }
+
+    .wiki-card .article-list a {
+        text-decoration: none;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .wiki-card .article-list a:hover {
+        color: #417690;
+    }
+
+    .difficulty-badge {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        background: #f0f0f0;
+    }
+
+    .featured-section, .popular-section, .recent-section {
+        background: #f8f9fa;
+        border-left: 4px solid #417690;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 4px;
+    }
+
+    .featured-section h2, .popular-section h2, .recent-section h2 {
+        margin-top: 0;
+        color: #417690;
+    }
+
+    .article-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .search-results {
+        background: #fffbea;
+        border: 2px solid #f39c12;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .search-results h2 {
+        margin-top: 0;
+        color: #f39c12;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; How-To Wiki
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wiki-container">
+    <div class="wiki-header">
+        <h1>📚 How-To Wiki</h1>
+        <p>Comprehensive guides and documentation for the DraftCraft system</p>
+    </div>
+
+    <div class="wiki-search">
+        <form method="get">
+            <input type="text" name="q" placeholder="Search guides... (e.g., 'bulk upload', 'wood types')" value="{{ query }}" autofocus>
+        </form>
+    </div>
+
+    {% if query %}
+    <div class="search-results">
+        <h2>🔍 Search Results for "{{ query }}"</h2>
+        {% if search_results %}
+            <p>Found {{ search_results.count }} result{{ search_results.count|pluralize }}:</p>
+            <ul class="article-list">
+                {% for article in search_results %}
+                <li>
+                    <a href="{% url 'admin:documents_wikiarticle_preview' article.id %}">
+                        <span>{{ article.title }}</span>
+                        <span class="difficulty-badge">{{ article.get_difficulty_display }}</span>
+                    </a>
+                    <div class="article-meta">
+                        <span>📁 {{ article.category.name }}</span>
+                        <span>👁 {{ article.view_count }} views</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="no-results">
+                <p>😕 No results found for "{{ query }}"</p>
+                <p>Try different keywords or browse categories below</p>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if featured %}
+    <div class="featured-section">
+        <h2>⭐ Featured Guides</h2>
+        <ul class="article-list">
+            {% for article in featured %}
+            <li>
+                <a href="{% url 'admin:documents_wikiarticle_preview' article.id %}">
+                    <span>{{ article.title }}</span>
+                    <span class="difficulty-badge">{{ article.get_difficulty_display }}</span>
+                </a>
+                <div class="article-meta">
+                    <span>📁 {{ article.category.name }}</span>
+                    <span>👁 {{ article.view_count }} views</span>
+                    {% if article.estimated_time %}
+                    <span>⏱ {{ article.estimated_time }}</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <h2 style="margin-top: 40px; margin-bottom: 20px;">📖 Browse by Category</h2>
+    <div class="wiki-grid">
+        {% for category in categories %}
+        <div class="wiki-card">
+            <h3>
+                <span class="icon">{{ category.icon }}</span>
+                <span>{{ category.name }}</span>
+            </h3>
+            <p>{{ category.description }}</p>
+            {% if category.articles.all %}
+            <ul class="article-list">
+                {% for article in category.articles.all %}
+                {% if article.is_published %}
+                <li>
+                    <a href="{% url 'admin:documents_wikiarticle_preview' article.id %}">
+                        <span>{{ article.title }}</span>
+                        <span class="difficulty-badge">{{ article.get_difficulty_display }}</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="color: #999; font-style: italic;">No articles yet</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px;">
+        <div class="popular-section">
+            <h2>🔥 Most Popular</h2>
+            <ul class="article-list">
+                {% for article in popular %}
+                <li>
+                    <a href="{% url 'admin:documents_wikiarticle_preview' article.id %}">
+                        <span>{{ article.title }}</span>
+                        <span>👁 {{ article.view_count }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="recent-section">
+            <h2>🆕 Recently Updated</h2>
+            <ul class="article-list">
+                {% for article in recent %}
+                <li>
+                    <a href="{% url 'admin:documents_wikiarticle_preview' article.id %}">
+                        <span>{{ article.title }}</span>
+                        <span>{{ article.updated_at|date:"d.m.Y" }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

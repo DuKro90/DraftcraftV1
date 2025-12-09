@@ -25,16 +25,24 @@ if db_engine == 'django.db.backends.sqlite3':
     }
 else:
     # PostgreSQL for production-like testing
+    db_host = config('DB_HOST', default='localhost')
+    is_supabase = 'supabase.co' in db_host
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': config('DB_NAME', default='draftcraft_dev'),
             'USER': config('DB_USER', default='postgres'),
             'PASSWORD': config('DB_PASSWORD', default='postgres'),
-            'HOST': config('DB_HOST', default='localhost'),
+            'HOST': db_host,
             'PORT': config('DB_PORT', default='5432'),
+            'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=600, cast=int),
         }
     }
+
+    # Add SSL for Supabase connections
+    if is_supabase:
+        DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 
 # Development email: Log to console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -45,11 +53,15 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:8000',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
 ]
 
 # Enable Django Debug Toolbar
-INSTALLED_APPS += ['django_debug_toolbar']
-MIDDLEWARE += ['django_debug_toolbar.middleware.DebugToolbarMiddleware']
+INSTALLED_APPS += ['debug_toolbar']
+MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 INTERNAL_IPS = ['127.0.0.1', 'localhost']
 
 # Celery: Use eager mode (execute immediately)
@@ -78,4 +90,4 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-print('✅ Using DEVELOPMENT settings')
+print('[OK] Using DEVELOPMENT settings')

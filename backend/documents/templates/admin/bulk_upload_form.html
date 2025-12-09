@@ -1,0 +1,233 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .bulk-upload-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .upload-instructions {
+        background: #f8f9fa;
+        border-left: 4px solid #417690;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .upload-instructions h3 {
+        margin-top: 0;
+        color: #417690;
+    }
+
+    .upload-instructions ol {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+
+    .upload-instructions li {
+        margin: 5px 0;
+    }
+
+    .template-download-section {
+        background: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+
+    .template-download-section h4 {
+        margin-top: 0;
+        color: #0066cc;
+    }
+
+    .download-buttons {
+        margin-top: 10px;
+    }
+
+    .download-buttons a {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-right: 10px;
+        background: #417690;
+        color: white;
+        text-decoration: none;
+        border-radius: 3px;
+        font-weight: 500;
+    }
+
+    .download-buttons a:hover {
+        background: #2e5568;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .form-group input[type="file"],
+    .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+
+    .form-group input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+    .helptext {
+        display: block;
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .submit-section {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .submit-section button {
+        padding: 10px 20px;
+        background: #417690;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .submit-section button:hover {
+        background: #2e5568;
+    }
+
+    .cancel-link {
+        margin-left: 15px;
+        color: #666;
+        text-decoration: none;
+    }
+
+    .cancel-link:hover {
+        color: #333;
+    }
+
+    .warning-box {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+
+    .warning-box strong {
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; Bulk Upload
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bulk-upload-container">
+    <h1>{{ title }}</h1>
+
+    <div class="upload-instructions">
+        <h3>📋 Anleitung für Bulk Upload</h3>
+        <ol>
+            <li><strong>Template herunterladen:</strong> Laden Sie unten eine Vorlage herunter (Excel oder CSV)</li>
+            <li><strong>Daten eintragen:</strong> Füllen Sie die Vorlage mit Ihren Daten aus (beachten Sie die Beispielzeilen)</li>
+            <li><strong>Datei hochladen:</strong> Laden Sie die ausgefüllte Datei hier hoch</li>
+            <li><strong>Vorschau prüfen:</strong> Nutzen Sie den Vorschau-Modus zur Validierung ohne Speichern</li>
+            <li><strong>Import ausführen:</strong> Deaktivieren Sie "Vorschau-Modus" und führen Sie den finalen Import aus</li>
+        </ol>
+    </div>
+
+    <div class="template-download-section">
+        <h4>📥 Template herunterladen</h4>
+        <p>Laden Sie zuerst eine Vorlage herunter, um die korrekte Struktur zu sehen:</p>
+        <div class="download-buttons">
+            <a href="{% url opts|admin_urlname:'download_template' %}">
+                📊 Excel Template (.xlsx)
+            </a>
+            <a href="{% url opts|admin_urlname:'download_template' %}?format=csv">
+                📄 CSV Template (.csv)
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message|safe }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="warning-box">
+        <strong>⚠️ Hinweis:</strong> Aktivieren Sie zunächst den <strong>Vorschau-Modus</strong>,
+        um Ihre Daten zu validieren, bevor Sie sie endgültig importieren.
+        Im Vorschau-Modus werden keine Änderungen in der Datenbank gespeichert.
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+
+            {% if field.field.widget.input_type == 'checkbox' %}
+                {{ field }}
+                {% if field.help_text %}
+                <span class="helptext">{{ field.help_text }}</span>
+                {% endif %}
+            {% else %}
+                {{ field }}
+                {% if field.help_text %}
+                <span class="helptext">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                <div class="error">{{ field.errors }}</div>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="submit-section">
+            <button type="submit">
+                🚀 Upload starten
+            </button>
+            <a href="{% url opts|admin_urlname:'changelist' %}" class="cancel-link">
+                Abbrechen
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

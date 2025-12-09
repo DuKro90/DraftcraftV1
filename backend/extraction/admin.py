@@ -2,12 +2,18 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import ExtractionConfig, ExtractedEntity, MaterialExtraction
+from .forms import (
+    ExtractionConfigAdminForm,
+    ExtractedEntityAdminForm,
+    MaterialExtractionAdminForm,
+)
 
 
 @admin.register(ExtractionConfig)
 class ExtractionConfigAdmin(admin.ModelAdmin):
     """Admin for ExtractionConfig model."""
 
+    form = ExtractionConfigAdminForm
     list_display = ('name', 'language_badge', 'ocr_enabled', 'ner_enabled', 'updated_at')
     list_filter = ('language', 'ocr_enabled', 'ner_enabled', 'updated_at')
     search_fields = ('name',)
@@ -50,6 +56,7 @@ class ExtractionConfigAdmin(admin.ModelAdmin):
 class ExtractedEntityAdmin(admin.ModelAdmin):
     """Admin for ExtractedEntity model."""
 
+    form = ExtractedEntityAdminForm
     list_display = ('text_display', 'entity_type_badge', 'confidence_percent', 'document_name', 'created_at')
     list_filter = ('entity_type', 'confidence_score', 'created_at', 'document__status')
     search_fields = ('text', 'document__original_filename', 'document__id')
@@ -133,6 +140,7 @@ class ExtractedEntityAdmin(admin.ModelAdmin):
 class MaterialExtractionAdmin(admin.ModelAdmin):
     """Admin for MaterialExtraction model."""
 
+    form = MaterialExtractionAdminForm
     list_display = ('document_name', 'complexity_level', 'surface_finish', 'confidence_display', 'requires_review_badge', 'updated_at')
     list_filter = ('complexity_level', 'surface_finish', 'requires_manual_review', 'updated_at')
     search_fields = ('document__original_filename', 'document__id')

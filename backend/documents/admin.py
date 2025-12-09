@@ -2,8 +2,28 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
+from django.core.cache import cache
 from decimal import Decimal
+import logging
+
 from .models import Document, ExtractionResult, AuditLog
+from .admin_actions import BulkUploadAdminMixin
+from .forms import (
+    DocumentAdminForm,
+    BetriebskennzahlTemplateAdminForm,
+    HolzartKennzahlAdminForm,
+    OberflächenbearbeitungKennzahlAdminForm,
+    KomplexitaetKennzahlAdminForm,
+    IndividuelleBetriebskennzahlAdminForm,
+    MateriallistePositionAdminForm,
+    SaisonaleMargeAdminForm,
+    ExtractionFailurePatternAdminForm,
+    PatternReviewSessionAdminForm,
+    PatternFixProposalAdminForm,
+    CalculationExplanationAdminForm,
+    CalculationFactorAdminForm,
+    UserProjectBenchmarkAdminForm,
+)
 from .betriebskennzahl_models import (
     BetriebskennzahlTemplate,
     HolzartKennzahl,
@@ -19,12 +39,20 @@ from .pattern_models import (
     PatternReviewSession,
     PatternFixProposal,
 )
+from .transparency_models import (
+    CalculationExplanation,
+    CalculationFactor,
+    UserProjectBenchmark,
+)
+
+logger = logging.getLogger(__name__)
 
 
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
     """Admin for Document model."""
 
+    form = DocumentAdminForm
     list_display = ('original_filename', 'status_badge', 'user', 'created_at', 'file_size_display')
     list_filter = ('status', 'document_type', 'created_at', 'is_encrypted')
     search_fields = ('original_filename', 'user__username', 'id')
@@ -220,6 +248,7 @@ class KomplexitaetKennzahlInline(admin.TabularInline):
 class BetriebskennzahlTemplateAdmin(admin.ModelAdmin):
     """Admin for global Betriebskennzahl templates."""
 
+    form = BetriebskennzahlTemplateAdminForm
     list_display = ('name', 'version', 'status_badge', 'created_by', 'updated_at')
     list_filter = ('is_active', 'created_at', 'updated_at', 'created_by')
     search_fields = ('name', 'description')
@@ -266,9 +295,14 @@ class BetriebskennzahlTemplateAdmin(admin.ModelAdmin):
 
 
 @admin.register(HolzartKennzahl)
-class HolzartKennzahlAdmin(admin.ModelAdmin):
-    """Admin for wood type factors."""
+class HolzartKennzahlAdmin(BulkUploadAdminMixin, admin.ModelAdmin):
+    """Admin for wood type factors with bulk upload support and cache invalidation."""
 
+    # Bulk upload configuration
+    bulk_upload_model_type = 'holzart'
+    bulk_upload_template_required = True
+
+    form = HolzartKennzahlAdminForm
     list_display = ('holzart', 'get_template_name', 'kategorie', 'preis_faktor', 'status_badge')
     list_filter = ('template', 'kategorie', 'is_enabled')
     search_fields = ('holzart', 'template__name')
@@ -312,11 +346,30 @@ class HolzartKennzahlAdmin(admin.ModelAdmin):
         )
     status_badge.short_description = 'Status'
 
+    def save_model(self, request, obj, form, change):
+        """Save model and invalidate related cache."""
+        super().save_model(request, obj, form, change)
+        cache_key = f'holzarten_template_{obj.template_id}'
+        cache.delete(cache_key)
+        logger.info(f"Cache invalidated: {cache_key} (admin save)")
+
+    def delete_model(self, request, obj):
+        """Delete model and invalidate cache."""
+        cache_key = f'holzarten_template_{obj.template_id}'
+        super().delete_model(request, obj)
+        cache.delete(cache_key)
+        logger.info(f"Cache invalidated: {cache_key} (admin delete)")
+
 
 @admin.register(OberflächenbearbeitungKennzahl)
-class OberflächenbearbeitungKennzahlAdmin(admin.ModelAdmin):
-    """Admin for surface finishing factors."""
+class OberflächenbearbeitungKennzahlAdmin(BulkUploadAdminMixin, admin.ModelAdmin):
+    """Admin for surface finishing factors with bulk upload support and cache invalidation."""
 
+    # Bulk upload configuration
+    bulk_upload_model_type = 'oberflaechen'
+    bulk_upload_template_required = True
+
+    form = OberflächenbearbeitungKennzahlAdminForm
     list_display = ('bearbeitung', 'get_template_name', 'preis_faktor', 'zeit_faktor', 'status_badge')
     list_filter = ('template', 'is_enabled')
     search_fields = ('bearbeitung', 'template__name')
@@ -357,11 +410,30 @@ class OberflächenbearbeitungKennzahlAdmin(admin.ModelAdmin):
         )
     status_badge.short_description = 'Status'
 
+    def save_model(self, request, obj, form, change):
+        """Save model and invalidate related cache."""
+        super().save_model(request, obj, form, change)
+        cache_key = f'oberflaechen_template_{obj.template_id}'
+        cache.delete(cache_key)
+        logger.info(f"Cache invalidated: {cache_key} (admin save)")
+
+    def delete_model(self, request, obj):
+        """Delete model and invalidate cache."""
+        cache_key = f'oberflaechen_template_{obj.template_id}'
+        super().delete_model(request, obj)
+        cache.delete(cache_key)
+        logger.info(f"Cache invalidated: {cache_key} (admin delete)")
+
 
 @admin.register(KomplexitaetKennzahl)
-class KomplexitaetKennzahlAdmin(admin.ModelAdmin):
-    """Admin for complexity/technique factors."""
+class KomplexitaetKennzahlAdmin(BulkUploadAdminMixin, admin.ModelAdmin):
+    """Admin for complexity/technique factors with bulk upload support and cache invalidation."""
 
+    # Bulk upload configuration
+    bulk_upload_model_type = 'komplexitaet'
+    bulk_upload_template_required = True
+
+    form = KomplexitaetKennzahlAdminForm
     list_display = ('technik', 'get_template_name', 'schwierigkeitsgrad', 'preis_faktor', 'zeit_faktor', 'status_badge')
     list_filter = ('template', 'schwierigkeitsgrad', 'is_enabled')
     search_fields = ('technik', 'template__name')
@@ -402,6 +474,20 @@ class KomplexitaetKennzahlAdmin(admin.ModelAdmin):
         )
     status_badge.short_description = 'Status'
 
+    def save_model(self, request, obj, form, change):
+        """Save model and invalidate related cache."""
+        super().save_model(request, obj, form, change)
+        cache_key = f'komplexitaet_template_{obj.template_id}'
+        cache.delete(cache_key)
+        logger.info(f"Cache invalidated: {cache_key} (admin save)")
+
+    def delete_model(self, request, obj):
+        """Delete model and invalidate cache."""
+        cache_key = f'komplexitaet_template_{obj.template_id}'
+        super().delete_model(request, obj)
+        cache.delete(cache_key)
+        logger.info(f"Cache invalidated: {cache_key} (admin delete)")
+
 
 # TIER 2: Company-Specific Metrics
 # ============================================================================
@@ -411,6 +497,7 @@ class KomplexitaetKennzahlAdmin(admin.ModelAdmin):
 class IndividuelleBetriebskennzahlAdmin(admin.ModelAdmin):
     """Admin for company-specific operational metrics."""
 
+    form = IndividuelleBetriebskennzahlAdminForm
     list_display = ('get_company_name', 'stundensatz_arbeit', 'gewinnmarge_prozent', 'status_badge', 'updated_at')
     list_filter = ('is_active', 'use_handwerk_standard', 'use_seasonal_adjustments', 'updated_at')
     search_fields = ('user__username', 'user__email', 'handwerk_template__name')
@@ -470,9 +557,14 @@ class IndividuelleBetriebskennzahlAdmin(admin.ModelAdmin):
 
 
 @admin.register(MateriallistePosition)
-class MateriallistePositionAdmin(admin.ModelAdmin):
-    """Admin for material catalog management."""
+class MateriallistePositionAdmin(BulkUploadAdminMixin, admin.ModelAdmin):
+    """Admin for material catalog management with bulk upload support."""
 
+    # Bulk upload configuration
+    bulk_upload_model_type = 'material'
+    bulk_upload_user_specific = True
+
+    form = MateriallistePositionAdminForm
     list_display = ('material_name', 'sku', 'get_company', 'standardkosten_eur', 'lieferant', 'status_badge')
     list_filter = ('is_enabled', 'lieferant', 'verfuegbarkeit', 'created_at')
     search_fields = ('material_name', 'sku', 'lieferant', 'user__username')
@@ -529,9 +621,14 @@ class MateriallistePositionAdmin(admin.ModelAdmin):
 
 
 @admin.register(SaisonaleMarge)
-class SaisonaleMargeAdmin(admin.ModelAdmin):
-    """Admin for seasonal pricing adjustments and campaigns."""
+class SaisonaleMargeAdmin(BulkUploadAdminMixin, admin.ModelAdmin):
+    """Admin for seasonal pricing adjustments and campaigns with bulk upload support."""
 
+    # Bulk upload configuration
+    bulk_upload_model_type = 'saisonal'
+    bulk_upload_user_specific = True
+
+    form = SaisonaleMargeAdminForm
     list_display = ('name', 'get_company', 'adjustment_display', 'date_range', 'status_badge')
     list_filter = ('is_active', 'adjustment_type', 'applicable_to', 'start_date', 'end_date')
     search_fields = ('name', 'description', 'user__username')
@@ -715,6 +812,7 @@ class AdminActionAuditAdmin(admin.ModelAdmin):
 class ExtractionFailurePatternAdmin(admin.ModelAdmin):
     """Admin for ExtractionFailurePattern - detected extraction issues."""
 
+    form = ExtractionFailurePatternAdminForm
     list_display = (
         'field_name',
         'severity_badge',
@@ -818,6 +916,7 @@ class ExtractionFailurePatternAdmin(admin.ModelAdmin):
 class PatternReviewSessionAdmin(admin.ModelAdmin):
     """Admin for PatternReviewSession - tracking admin reviews."""
 
+    form = PatternReviewSessionAdminForm
     list_display = (
         'title',
         'status_badge',
@@ -952,6 +1051,7 @@ class PatternReviewSessionAdmin(admin.ModelAdmin):
 class PatternFixProposalAdmin(admin.ModelAdmin):
     """Admin for PatternFixProposal - proposed fixes for patterns."""
 
+    form = PatternFixProposalAdminForm
     list_display = (
         'title',
         'status_badge',
@@ -1097,3 +1197,191 @@ class PatternFixProposalAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """Only superusers can delete proposals."""
         return request.user.is_superuser
+
+
+# =============================================================================
+# PHASE 4A: Transparency & Explainability Admin
+# =============================================================================
+
+
+class CalculationFactorInline(admin.TabularInline):
+    """Inline display of calculation factors."""
+    model = CalculationFactor
+    extra = 0
+    fields = ['display_order', 'factor_name', 'amount_eur', 'impact_percent', 'explanation_text', 'data_source', 'is_adjustable']
+    readonly_fields = ['display_order', 'impact_percent']
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        """Factors are auto-generated, no manual adding."""
+        return False
+
+
+@admin.register(CalculationExplanation)
+class CalculationExplanationAdmin(admin.ModelAdmin):
+    """Admin interface for transparent calculation explanations."""
+
+    form = CalculationExplanationAdminForm
+    list_display = [
+        'document_name',
+        'confidence_badge',
+        'total_price_display',
+        'deviation_badge',
+        'similar_projects_count',
+        'created_at_display'
+    ]
+    list_filter = ['confidence_level', 'created_at']
+    search_fields = ['extraction_result__document__original_filename']
+    readonly_fields = ['created_at', 'extraction_result']
+    inlines = [CalculationFactorInline]
+    date_hierarchy = 'created_at'
+
+    fieldsets = [
+        ('Dokument', {
+            'fields': ['extraction_result']
+        }),
+        ('Kalkulation', {
+            'fields': ['total_price_eur', 'confidence_level', 'confidence_score']
+        }),
+        ('Vergleich mit Nutzer-Historie', {
+            'fields': [
+                'similar_projects_count',
+                'user_average_for_type',
+                'deviation_from_average_percent'
+            ],
+            'description': 'Vergleich dieser Kalkulation mit bisherigen Projekten des Nutzers'
+        }),
+        ('Metadaten', {
+            'fields': ['created_at'],
+            'classes': ['collapse']
+        }),
+    ]
+
+    def document_name(self, obj):
+        """Display document filename."""
+        return obj.extraction_result.document.original_filename
+    document_name.short_description = 'Dokument'
+
+    def confidence_badge(self, obj):
+        """Visual confidence indicator (Ampelsystem)."""
+        colors = {'high': '#28a745', 'medium': '#ffc107', 'low': '#dc3545'}
+        color = colors.get(obj.confidence_level, '#6c757d')
+        return format_html(
+            '<span style="background: {}; color: white; padding: 3px 8px; border-radius: 3px; font-weight: bold;">{}</span>',
+            color,
+            obj.get_confidence_level_display()
+        )
+    confidence_badge.short_description = 'Konfidenz'
+
+    def total_price_display(self, obj):
+        """Format total price."""
+        return f"{obj.total_price_eur:,.2f} €".replace(',', '.')
+    total_price_display.short_description = 'Gesamtpreis'
+
+    def deviation_badge(self, obj):
+        """Visual deviation indicator."""
+        if not obj.deviation_from_average_percent:
+            return format_html('<span style="color: #6c757d;">-</span>')
+
+        dev = float(obj.deviation_from_average_percent)
+        if abs(dev) > 15:
+            color = '#dc3545'  # Red - significant deviation
+        elif abs(dev) > 5:
+            color = '#ffc107'  # Yellow - moderate deviation
+        else:
+            color = '#28a745'  # Green - within range
+
+        symbol = '↑' if dev > 0 else '↓' if dev < 0 else '='
+
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{} {:+.1f}%</span>',
+            color, symbol, dev
+        )
+    deviation_badge.short_description = 'Abweichung'
+
+    def created_at_display(self, obj):
+        """Format created timestamp."""
+        return obj.created_at.strftime('%d.%m.%Y %H:%M')
+    created_at_display.short_description = 'Erstellt am'
+
+    def has_add_permission(self, request):
+        """Explanations are auto-generated, no manual adding."""
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Only superusers can delete explanations (DSGVO retention)."""
+        return request.user.is_superuser
+
+
+@admin.register(UserProjectBenchmark)
+class UserProjectBenchmarkAdmin(admin.ModelAdmin):
+    """Admin interface for user project benchmarks."""
+
+    form = UserProjectBenchmarkAdminForm
+    list_display = [
+        'user',
+        'project_type',
+        'total_projects',
+        'average_price_display',
+        'price_range_display',
+        'average_margin_display',
+        'last_calculated_display'
+    ]
+    list_filter = ['user', 'project_type']
+    search_fields = ['user__username', 'project_type']
+    readonly_fields = ['last_calculated', 'created_at']
+    date_hierarchy = 'last_calculated'
+
+    fieldsets = [
+        ('Projekt', {
+            'fields': ['user', 'project_type']
+        }),
+        ('Statistiken', {
+            'fields': [
+                'total_projects',
+                'average_price_eur',
+                'min_price_eur',
+                'max_price_eur',
+                'average_margin_percent'
+            ],
+            'description': 'Aggregierte Statistiken basierend auf abgeschlossenen Projekten'
+        }),
+        ('Metadaten', {
+            'fields': ['last_calculated', 'created_at'],
+            'classes': ['collapse']
+        }),
+    ]
+
+    def average_price_display(self, obj):
+        """Format average price."""
+        return f"{obj.average_price_eur:,.2f} €".replace(',', '.')
+    average_price_display.short_description = 'Ø Preis'
+
+    def price_range_display(self, obj):
+        """Display price range."""
+        min_price = f"{obj.min_price_eur:,.2f}".replace(',', '.')
+        max_price = f"{obj.max_price_eur:,.2f}".replace(',', '.')
+        return f"{min_price} € - {max_price} €"
+    price_range_display.short_description = 'Preisspanne'
+
+    def average_margin_display(self, obj):
+        """Format average margin."""
+        return f"{obj.average_margin_percent:.1f}%"
+    average_margin_display.short_description = 'Ø Marge'
+
+    def last_calculated_display(self, obj):
+        """Format last calculated timestamp."""
+        return obj.last_calculated.strftime('%d.%m.%Y %H:%M')
+    last_calculated_display.short_description = 'Zuletzt aktualisiert'
+
+    def has_add_permission(self, request):
+        """Benchmarks are auto-generated, no manual adding."""
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Only superusers can delete benchmarks."""
+        return request.user.is_superuser
+
+
+# Import Pauschalen Admin (Phase 4C)
+from .admin_pauschalen import BetriebspauschaleRegelAdmin, PauschaleAnwendungAdmin

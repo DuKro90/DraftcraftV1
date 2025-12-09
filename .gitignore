@@ -5,6 +5,9 @@
 backend/.env
 backend/.env.production
 backend/.env.development
+backend/.env.supabase
+backend/.env.local.backup
+*.backup
 
 # Python
 __pycache__/
@@ -59,6 +62,8 @@ htmlcov/
 postgres_data/
 pgadmin_data/
 *.sql
+*.dump
+backups/
 
 # Celery
 celery_beat_data/
@@ -82,6 +87,10 @@ Thumbs.db
 *.bak
 *.swp
 ~*
+
+# Temporary error logs & debug files
+*Error.txt
+*ErrorList.md
 
 # Logs
 logs/

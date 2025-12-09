@@ -23,6 +23,7 @@ Pillow==10.1.0
 pytz==2023.3
 python-dateutil==2.8.2
 pydantic>=2.0.0
+openpyxl==3.1.2  # Excel file handling for bulk uploads
 
 # Encryption (Phase 4)
 cryptography==41.0.7
@@ -52,3 +53,4 @@ google-generativeai>=0.3.0
 
 # Logging
 python-json-logger==2.0.7
+markdown==3.5.1  # Markdown rendering for wiki system

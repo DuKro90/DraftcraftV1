@@ -1,0 +1,11 @@
+3. Beschädigtes Schaltinterface
+Das schwarze Bauteil an der Nabe, an dem die Züge eingehängt werden, könnte defekt sein.
+Problem: Die Umlenkrollen oder die Führung im Interface selbst könnten verschlissen oder beschädigt sein und die Züge einklemmen oder scharfkantig führen.
+4. Falsche oder qualitativ minderwertige Züge
+Enviolo-Systeme benötigen spezifische Züge und Außenhüllen. Die Verwendung von universellen, nicht für Enviolo spezifizierten Teilen kann zu Problemen führen.
+Problem: Wenn die Züge nicht die korrekte Dicke oder die richtigen Endnippel haben, halten sie der Belastung nicht stand.
+Empfehlung für die Werkstatt:
+Weisen Sie die Werkstatt unbedingt auf das wiederholte Reißen der Züge hin. Eine gute Werkstatt wird nicht nur die Züge tauschen, sondern:
+Das Interface auf Beschädigungen prüfen.
+Die Zugverlegung im Rahmen überprüfen.
+Eine präzise Kalibrierung des Systems durchführen, um sicherzustellen, dass die Endanschläge korrekt erkannt werden.

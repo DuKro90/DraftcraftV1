@@ -1,0 +1,334 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ article.title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .article-container {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .article-header {
+        border-bottom: 2px solid #417690;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    .article-header h1 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .article-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .article-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .difficulty-badge {
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .difficulty-beginner { background: #27AE60; }
+    .difficulty-intermediate { background: #F39C12; }
+    .difficulty-advanced { background: #E74C3C; }
+
+    .article-content {
+        line-height: 1.8;
+        font-size: 16px;
+    }
+
+    .article-content h1 { font-size: 28px; margin-top: 30px; color: #417690; }
+    .article-content h2 { font-size: 24px; margin-top: 25px; color: #417690; }
+    .article-content h3 { font-size: 20px; margin-top: 20px; color: #417690; }
+
+    .article-content pre {
+        background: #f5f5f5;
+        padding: 15px;
+        border-left: 4px solid #417690;
+        overflow-x: auto;
+        border-radius: 4px;
+    }
+
+    .article-content code {
+        background: #f5f5f5;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .article-content pre code {
+        background: none;
+        padding: 0;
+    }
+
+    .article-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+    .article-content table th,
+    .article-content table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .article-content table th {
+        background: #417690;
+        color: white;
+    }
+
+    .article-content table tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    .article-content blockquote {
+        border-left: 4px solid #F39C12;
+        padding: 10px 20px;
+        margin: 20px 0;
+        background: #fffbea;
+    }
+
+    .article-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .article-feedback {
+        margin-top: 40px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .article-feedback h3 {
+        margin-top: 0;
+    }
+
+    .feedback-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .feedback-button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+
+    .feedback-button.helpful {
+        background: #27AE60;
+        color: white;
+    }
+
+    .feedback-button.helpful:hover {
+        background: #229954;
+    }
+
+    .feedback-button.not-helpful {
+        background: #E74C3C;
+        color: white;
+    }
+
+    .feedback-button.not-helpful:hover {
+        background: #C0392B;
+    }
+
+    .related-articles {
+        margin-top: 40px;
+        padding: 20px;
+        background: #f0f8ff;
+        border-radius: 8px;
+    }
+
+    .related-articles h3 {
+        margin-top: 0;
+        color: #417690;
+    }
+
+    .related-articles ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .related-articles li {
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .related-articles li:last-child {
+        border-bottom: none;
+    }
+
+    .related-articles a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .related-articles a:hover {
+        color: #417690;
+    }
+
+    .back-button {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding: 8px 16px;
+        background: #417690;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+
+    .back-button:hover {
+        background: #2e5568;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:documents_wiki_home' %}">How-To Wiki</a>
+    &rsaquo; {{ article.category.name }}
+    &rsaquo; {{ article.title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="article-container">
+    <a href="{% url 'admin:documents_wiki_home' %}" class="back-button">← Back to Wiki</a>
+
+    <div class="article-header">
+        <h1>{{ article.title }}</h1>
+
+        <div class="article-meta">
+            <div class="article-meta-item">
+                <span>📁</span>
+                <span><strong>Category:</strong> {{ article.category.name }}</span>
+            </div>
+
+            <div class="article-meta-item">
+                <span class="difficulty-badge difficulty-{{ article.difficulty }}">
+                    {{ article.get_difficulty_display }}
+                </span>
+            </div>
+
+            {% if article.estimated_time %}
+            <div class="article-meta-item">
+                <span>⏱</span>
+                <span>{{ article.estimated_time }}</span>
+            </div>
+            {% endif %}
+
+            <div class="article-meta-item">
+                <span>👁</span>
+                <span>{{ article.view_count }} views</span>
+            </div>
+
+            {% if article.helpfulness_score %}
+            <div class="article-meta-item">
+                <span>👍</span>
+                <span>{{ article.helpfulness_score|floatformat:0 }}% helpful</span>
+            </div>
+            {% endif %}
+
+            <div class="article-meta-item">
+                <span>🕒</span>
+                <span>Updated: {{ article.updated_at|date:"d.m.Y" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="article-content">
+        {{ article.content_html|safe }}
+    </div>
+
+    {% if article.related_articles.all %}
+    <div class="related-articles">
+        <h3>📎 Related Articles</h3>
+        <ul>
+            {% for related in article.related_articles.all %}
+            {% if related.is_published %}
+            <li>
+                <a href="{% url 'admin:documents_wikiarticle_preview' related.id %}">
+                    {{ related.title }}
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="article-feedback">
+        <h3>Was this article helpful?</h3>
+        <p>Your feedback helps us improve our documentation</p>
+        <div class="feedback-buttons">
+            <button class="feedback-button helpful" onclick="submitFeedback(true)">
+                👍 Yes, helpful
+            </button>
+            <button class="feedback-button not-helpful" onclick="submitFeedback(false)">
+                👎 Not helpful
+            </button>
+        </div>
+        <div id="feedback-message" style="margin-top: 15px; display: none;"></div>
+    </div>
+</div>
+
+<script>
+function submitFeedback(isHelpful) {
+    // In a real implementation, this would POST to a feedback endpoint
+    const message = document.getElementById('feedback-message');
+    message.textContent = 'Thank you for your feedback!';
+    message.style.display = 'block';
+    message.style.color = '#27AE60';
+    message.style.fontWeight = 'bold';
+
+    // Disable buttons after submission
+    document.querySelectorAll('.feedback-button').forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+    });
+
+    // TODO: Implement AJAX call to save feedback
+    // fetch('/admin/wiki/feedback/', {
+    //     method: 'POST',
+    //     headers: {'Content-Type': 'application/json'},
+    //     body: JSON.stringify({
+    //         article_id: {{ article.id }},
+    //         is_helpful: isHelpful
+    //     })
+    // });
+}
+</script>
+{% endblock %}

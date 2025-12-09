@@ -39,6 +39,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',  # Token authentication
     'django_filters',
     'corsheaders',
     'drf_spectacular',
@@ -57,8 +58,10 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',  # Enable gzip compression for API responses
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.middleware.locale.LocaleMiddleware',  # TEMPORARY: Disabled due to Python 3.14 gettext bug
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -78,6 +81,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                # 'django.template.context_processors.i18n',  # TEMPORARY: Disabled due to Python 3.14 gettext bug
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -118,16 +122,32 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'de-de'
+LANGUAGE_CODE = 'de'  # Default language
 TIME_ZONE = 'Europe/Berlin'
-USE_I18N = True
+USE_I18N = False  # TEMPORARY: Disabled due to Python 3.14 gettext bug
 USE_TZ = True
 
-# German number formatting
+# Supported languages (disabled temporarily)
+# LANGUAGES = [
+#     ('de', 'Deutsch'),
+#     ('en', 'English'),
+# ]
+
+# Locale paths for translation files (disabled temporarily)
+# LOCALE_PATHS = [
+#     os.path.join(BASE_DIR, 'locale'),
+# ]
+
+# German number formatting (when German is selected)
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
 DECIMAL_SEPARATOR = ','
 THOUSAND_SEPARATOR = '.'
+
+# Format localization per language
+FORMAT_MODULE_PATH = [
+    'config.formats',
+]
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
@@ -160,12 +180,18 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
+        'api.v1.throttling.AnonBurstRateThrottle',
+        'api.v1.throttling.AnonSustainedRateThrottle',
+        'api.v1.throttling.UserBurstRateThrottle',
+        'api.v1.throttling.UserSustainedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour'
+        'anon_burst': '10/min',         # Anonymous: 10 req/min burst
+        'anon_sustained': '100/hour',   # Anonymous: 100 req/hour sustained
+        'user_burst': '60/min',         # Authenticated: 60 req/min burst
+        'user_sustained': '1000/hour',  # Authenticated: 1000 req/hour sustained
+        'document_upload': '10/hour',   # Document uploads: 10/hour
+        'auth': '5/min',                # Authentication: 5/min (brute-force protection)
     },
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -412,3 +438,45 @@ GEMINI_BUDGET_CONFIG = {
 
 # Analytics
 SENTRY_DSN = config('SENTRY_DSN', default='')
+
+# ============================================================================
+# DRF Spectacular - OpenAPI 3.0 Schema Generation (Phase 4D)
+# ============================================================================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'DraftCraft API',
+    'DESCRIPTION': 'German Handwerk Document Analysis System - REST API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': r'/api/v1',
+    'SERVE_AUTHENTICATION': ['rest_framework.authentication.TokenAuthentication'],
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.IsAuthenticated'],
+    'PREPROCESSING_HOOKS': [],
+    'POSTPROCESSING_HOOKS': [],
+    'SERVERS': [
+        {'url': 'http://localhost:8000', 'description': 'Development server'},
+        {'url': 'https://draftcraft.app', 'description': 'Production server'},
+    ],
+    'TAGS': [
+        {'name': 'Pricing', 'description': 'Price calculation endpoints'},
+        {'name': 'Configuration', 'description': 'Configuration management (TIER 1/2 factors)'},
+        {'name': 'Pattern Analysis', 'description': 'Extraction failure pattern management'},
+        {'name': 'Transparency', 'description': 'AI transparency and explanations'},
+        {'name': 'Documents', 'description': 'Document upload and processing'},
+        {'name': 'Proposals', 'description': 'Proposal generation'},
+    ],
+    'ENUM_NAME_OVERRIDES': {
+        'CustomerType': 'api.v1.serializers.calculation_serializers.PriceCalculationRequestSerializer.customer_type',
+    },
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+        'filter': True,
+    },
+    'REDOC_UI_SETTINGS': {
+        'hideDownloadButton': False,
+        'expandResponses': '200,201',
+        'pathInMiddlePanel': True,
+    },
+}

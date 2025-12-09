@@ -1,0 +1,251 @@
+/**
+ * Enhanced Django Admin Tooltips & Help Text Styling
+ *
+ * This CSS enhances the default Django admin help text to be more
+ * user-friendly with better visibility, tooltips, and German Handwerk branding.
+ */
+
+/* =============================================================================
+   HELP TEXT ENHANCEMENTS
+   ============================================================================= */
+
+/* Base help text styling */
+.help,
+.helptext {
+    display: block;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #666;
+    margin-top: 5px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-left: 3px solid #417690;
+    border-radius: 3px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Inline help text (for inline fields) */
+.inline-group .helptext {
+    font-size: 12px;
+    padding: 4px 8px;
+    margin-top: 3px;
+}
+
+/* Help text hover effect */
+.help:hover,
+.helptext:hover {
+    background: #e8f4f8;
+    border-left-color: #205067;
+}
+
+/* =============================================================================
+   FIELD-SPECIFIC HELP TEXT COLORS (German Handwerk Context)
+   ============================================================================= */
+
+/* TIER 1: Global Standards (Blue theme) */
+.field-holzart .helptext,
+.field-kategorie .helptext,
+.field-bearbeitung .helptext,
+.field-technik .helptext {
+    border-left-color: #3498DB;
+}
+
+/* TIER 2: Company Metrics (Orange theme) */
+.field-stundensatz_arbeit .helptext,
+.field-betriebskosten_umlage .helptext,
+.field-gewinnmarge_prozent .helptext,
+.field-material_name .helptext,
+.field-sku .helptext {
+    border-left-color: #F39C12;
+}
+
+/* TIER 3: Dynamic Adjustments (Purple theme) */
+.field-adjustment_type .helptext,
+.field-value .helptext,
+.field-start_date .helptext,
+.field-end_date .helptext {
+    border-left-color: #9B59B6;
+}
+
+/* Critical/Important fields (Red theme) */
+.field-severity .helptext,
+.field-confidence_threshold .helptext,
+.field-test_success_rate .helptext {
+    border-left-color: #E74C3C;
+    background: #fef5f5;
+}
+
+/* DSGVO/Compliance fields (Green theme) */
+.field-retention_until .helptext,
+.field-is_encrypted .helptext {
+    border-left-color: #27AE60;
+}
+
+/* =============================================================================
+   TOOLTIP ICON INTEGRATION
+   ============================================================================= */
+
+/* Add tooltip icon next to labels */
+.form-row label::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23999"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>') no-repeat center;
+    background-size: contain;
+    vertical-align: middle;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* Show tooltip icon on hover */
+.form-row:hover label::after {
+    opacity: 0.6;
+}
+
+/* =============================================================================
+   FIELDSET DESCRIPTIONS
+   ============================================================================= */
+
+/* Fieldset help text (description parameter) */
+.fieldset-description {
+    font-size: 13px;
+    color: #666;
+    margin: -5px 0 15px 0;
+    padding: 10px 15px;
+    background: #fff9e6;
+    border-left: 3px solid #F39C12;
+    border-radius: 3px;
+    font-style: italic;
+}
+
+/* =============================================================================
+   INLINE FORM HELP TEXT
+   ============================================================================= */
+
+/* Inline tabular forms */
+.tabular .helptext {
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.tabular .helptext:hover {
+    white-space: normal;
+    max-width: none;
+    position: relative;
+    z-index: 1000;
+}
+
+/* =============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================= */
+
+@media (max-width: 768px) {
+    .help,
+    .helptext {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .form-row label::after {
+        display: none;
+    }
+}
+
+/* =============================================================================
+   DJANGO ADMIN DARK MODE SUPPORT (if enabled)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    .help,
+    .helptext {
+        background: #2b2b2b;
+        color: #ccc;
+        border-left-color: #5ba8c4;
+    }
+
+    .help:hover,
+    .helptext:hover {
+        background: #353535;
+    }
+
+    .fieldset-description {
+        background: #3a3a2a;
+        border-left-color: #d4a017;
+    }
+}
+
+/* =============================================================================
+   PRINT STYLES
+   ============================================================================= */
+
+@media print {
+    .help,
+    .helptext {
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #000;
+    }
+
+    .form-row label::after {
+        display: none;
+    }
+}
+
+/* =============================================================================
+   CUSTOM TOOLTIP ENHANCEMENT (Optional Advanced Feature)
+   ============================================================================= */
+
+/* Enhanced tooltip positioning for complex fields */
+.field-change_details .helptext,
+.field-suggested_fix .helptext,
+.field-validation_notes .helptext {
+    position: relative;
+    padding-left: 30px;
+}
+
+.field-change_details .helptext::before,
+.field-suggested_fix .helptext::before,
+.field-validation_notes .helptext::before {
+    content: "💡";
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    font-size: 16px;
+}
+
+/* Success indicators for validated fields */
+.field-test_success_rate .helptext::before {
+    content: "✓";
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    color: #27AE60;
+    font-weight: bold;
+}
+
+.field-test_success_rate .helptext {
+    padding-left: 30px;
+}
+
+/* Warning indicators for important decisions */
+.field-is_active .helptext::before,
+.field-is_enabled .helptext::before {
+    content: "⚠";
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    color: #F39C12;
+    font-weight: bold;
+}
+
+.field-is_active .helptext,
+.field-is_enabled .helptext {
+    padding-left: 30px;
+}

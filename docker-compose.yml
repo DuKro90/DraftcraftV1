@@ -1,5 +1,25 @@
+# ============================================================================
+# DraftCraft Docker Compose Configuration
+# ============================================================================
+#
+# Database: Migrated to Supabase (2025-11-28)
+# - Local PostgreSQL service is commented out
+# - All services now connect to Supabase cloud database
+# - To rollback: uncomment postgres service and update DB_HOST=postgres
+#
+# Active Services:
+# - redis: Cache & Celery broker (still local)
+# - web: Django application (connects to Supabase)
+# - celery_worker: Background tasks (connects to Supabase)
+# - celery_beat: Task scheduler (connects to Supabase)
+# - nginx: Reverse proxy
+# ============================================================================
+
 services:
-  # PostgreSQL Database
+  # PostgreSQL Database - LOCAL FOR DOCKER DEVELOPMENT
+  # Using local postgres for Docker development (better than Supabase from containers)
+  # For production deployment, Supabase is used directly (no Docker)
+
   postgres:
     image: postgres:15-alpine
     container_name: draftcraft_postgres
@@ -43,16 +63,19 @@ services:
       dockerfile: Dockerfile
     container_name: draftcraft_web
     environment:
-      DJANGO_SETTINGS_MODULE: "config.settings.production"
-      DEBUG: "False"
+      DJANGO_SETTINGS_MODULE: "config.settings.development"
+      DEBUG: "True"
       SECRET_KEY: "django-insecure-docker-key-change-in-production"
       ALLOWED_HOSTS: "localhost,127.0.0.1,web"
+      # Database - Local Postgres (Docker development)
       DB_ENGINE: django.db.backends.postgresql
       DB_NAME: draftcraft_dev
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_HOST: postgres
       DB_PORT: "5432"
+      DB_CONN_MAX_AGE: "600"
+      # Celery/Redis
       CELERY_BROKER_URL: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       DJANGO_LOG_LEVEL: INFO
@@ -86,21 +109,23 @@ services:
       dockerfile: Dockerfile
     container_name: draftcraft_celery_worker
     environment:
-      DJANGO_SETTINGS_MODULE: "config.settings.production"
-      DEBUG: "False"
+      DJANGO_SETTINGS_MODULE: "config.settings.development"
+      DEBUG: "True"
       SECRET_KEY: "django-insecure-docker-key-change-in-production"
       ALLOWED_HOSTS: "localhost,127.0.0.1,web"
+      # Database - Local Postgres (Docker development)
       DB_ENGINE: django.db.backends.postgresql
       DB_NAME: draftcraft_dev
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_HOST: postgres
       DB_PORT: "5432"
+      DB_CONN_MAX_AGE: "600"
+      # Celery/Redis
       CELERY_BROKER_URL: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       DJANGO_LOG_LEVEL: INFO
     depends_on:
-      - postgres
       - redis
       - web
     volumes:
@@ -118,21 +143,23 @@ services:
       dockerfile: Dockerfile
     container_name: draftcraft_celery_beat
     environment:
-      DJANGO_SETTINGS_MODULE: "config.settings.production"
-      DEBUG: "False"
+      DJANGO_SETTINGS_MODULE: "config.settings.development"
+      DEBUG: "True"
       SECRET_KEY: "django-insecure-docker-key-change-in-production"
       ALLOWED_HOSTS: "localhost,127.0.0.1,web"
+      # Database - Local Postgres (Docker development)
       DB_ENGINE: django.db.backends.postgresql
       DB_NAME: draftcraft_dev
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_HOST: postgres
       DB_PORT: "5432"
+      DB_CONN_MAX_AGE: "600"
+      # Celery/Redis
       CELERY_BROKER_URL: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       DJANGO_LOG_LEVEL: INFO
     depends_on:
-      - postgres
       - redis
       - web
     volumes:
@@ -160,7 +187,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  postgres_data:  # Local postgres for Docker development
   redis_data:
   celery_beat_data:
   static_volume:

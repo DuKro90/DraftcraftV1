@@ -1,0 +1,22 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_tooltips.css' %}">
+{% endblock %}
+
+{% block title %}{{ title }} | DraftcraftV1 Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        DraftcraftV1 Admin
+        <span style="font-size: 12px; color: #999; font-weight: normal;">
+            | German Handwerk Document Analysis
+        </span>
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

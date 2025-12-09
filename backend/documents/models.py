@@ -17,6 +17,41 @@ from .betriebskennzahl_models import (  # noqa: F401
     AdminActionAudit,
 )
 
+# Import Transparency models (Phase 4A: Explainable calculations & user benchmarks)
+# This ensures Django discovers models in transparency_models.py
+from .transparency_models import (  # noqa: F401
+    CalculationExplanation,
+    CalculationFactor,
+    UserProjectBenchmark,
+)
+
+# Import Wiki models (Admin documentation system)
+# This ensures Django discovers models in models_wiki.py
+from .models_wiki import (  # noqa: F401
+    WikiCategory,
+    WikiArticle,
+    WikiSearchLog,
+    WikiFeedback,
+)
+
+# Import Standardbauteile models (Phase 4B: Component catalog & calculation rules)
+# This ensures Django discovers models in models_bauteile.py
+from .models_bauteile import (  # noqa: F401
+    StandardBauteil,
+    BauteilRegel,
+    BauteilKatalog,
+    BauteilKatalogPosition,
+    GeometrieBerechnung,
+    CompanyProfile,
+)
+
+# Import Betriebspauschalen models (Phase 4C: Fixed business expense rules)
+# This ensures Django discovers models in models_pauschalen.py
+from .models_pauschalen import (  # noqa: F401
+    BetriebspauschaleRegel,
+    PauschaleAnwendung,
+)
+
 
 class Document(models.Model):
     """Uploaded document for processing."""

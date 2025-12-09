@@ -433,6 +433,9 @@ class TestCalculationEngineTier3(TestCase):
         self.config.use_seasonal_adjustments = False
         self.config.save()
 
+        # Reinitialize engine with updated config
+        self.engine = CalculationEngine(self.user)
+
         today = timezone.now().date()
         SaisonaleMarge.objects.create(
             user=self.user,
@@ -625,6 +628,9 @@ class TestCalculationEngineEdgeCases(TestCase):
         """Test calculation with zero profit margin."""
         self.config.gewinnmarge_prozent = Decimal('0')
         self.config.save()
+
+        # Reinitialize engine with updated config
+        self.engine = CalculationEngine(self.user)
 
         extracted_data = {
             'material_cost_eur': Decimal('100.00'),
