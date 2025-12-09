@@ -55,8 +55,16 @@ EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
 EMAIL_USE_TLS = True
 
 # CORS: Restrict to frontend domain
-# Set via environment variable: CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',') if os.environ.get('CORS_ALLOWED_ORIGINS') else []
+# Vercel Frontend + Cloud Run Backend
+CORS_ALLOWED_ORIGINS = [
+    'https://draftcraft-v1.vercel.app',        # Vercel Production
+    'https://draftcraft-v1-*.vercel.app',      # Vercel Preview Deploys
+    'https://*.run.app',                        # Cloud Run (Backend-to-Backend if needed)
+]
+
+# Allow environment variable override for custom domains
+if os.environ.get('CORS_ALLOWED_ORIGINS'):
+    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
 
 # CORS Additional Settings
 CORS_ALLOW_CREDENTIALS = True

@@ -62,7 +62,10 @@
       "Bash(timeout 30 docker-compose exec:*)",
       "Bash(timeout 120 docker-compose exec:*)",
       "Bash(timeout 60 docker-compose exec:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git push:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote set-url:*)"
     ],
     "deny": [],
     "ask": []
