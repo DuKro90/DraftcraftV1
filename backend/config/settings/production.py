@@ -107,15 +107,31 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Disable admin for security (use API instead)
 # ADMIN_URL is randomly generated in production
 
-# Logging: Send to Cloud Logging (if available)
+# Logging: Cloud Run uses stdout/stderr (disable file logging)
+# Remove file handler for Cloud Run (no persistent disk, permission issues)
+if 'file' in LOGGING['handlers']:
+    del LOGGING['handlers']['file']
+
+# Update all loggers to use only console
+for logger_name in LOGGING['loggers']:
+    if 'file' in LOGGING['loggers'][logger_name].get('handlers', []):
+        LOGGING['loggers'][logger_name]['handlers'] = ['console']
+
+# Update root logger
+if 'file' in LOGGING['root'].get('handlers', []):
+    LOGGING['root']['handlers'] = ['console']
+
+# Try Cloud Logging integration (optional)
 try:
     import google.cloud.logging
     LOGGING['handlers']['cloud_logging'] = {
         'level': 'INFO',
         'class': 'google.cloud.logging.handlers.CloudLoggingHandler',
     }
+    # Use cloud logging if available
+    LOGGING['root']['handlers'].append('cloud_logging')
 except ImportError:
-    # Fall back to console logging if google-cloud-logging not installed
+    # Fall back to console logging only
     pass
 
 # Sentry: Error tracking
