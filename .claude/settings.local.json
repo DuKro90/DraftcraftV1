@@ -66,7 +66,11 @@
       "Bash(git push:*)",
       "Bash(git remote add:*)",
       "Bash(git remote set-url:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": [],
     "ask": []
