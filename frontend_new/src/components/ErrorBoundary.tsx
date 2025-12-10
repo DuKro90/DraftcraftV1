@@ -3,7 +3,7 @@
  * Catches React errors and displays fallback UI
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
 interface Props {
@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Es tut uns leid, aber es ist ein Fehler aufgetreten. Bitte laden Sie die Seite neu.
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-left">
                 <p className="text-xs text-red-800 font-mono break-all">
                   {this.state.error.toString()}
