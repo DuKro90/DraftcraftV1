@@ -58,13 +58,19 @@ EMAIL_USE_TLS = True
 # Vercel Frontend + Cloud Run Backend
 CORS_ALLOWED_ORIGINS = [
     'https://draftcraft-v1.vercel.app',        # Vercel Production
-    'https://draftcraft-v1-*.vercel.app',      # Vercel Preview Deploys
-    'https://*.run.app',                        # Cloud Run (Backend-to-Backend if needed)
+]
+
+# Use regex for Vercel preview deployments (wildcards not supported in CORS_ALLOWED_ORIGINS)
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https://draftcraft-v1-[a-zA-Z0-9-]+\.vercel\.app$',  # Vercel Preview Deploys
+    r'^https://[a-zA-Z0-9-]+\.run\.app$',                    # Cloud Run
 ]
 
 # Allow environment variable override for custom domains
 if os.environ.get('CORS_ALLOWED_ORIGINS'):
     CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
+if os.environ.get('CORS_ALLOWED_ORIGIN_REGEXES'):
+    CORS_ALLOWED_ORIGIN_REGEXES = os.environ.get('CORS_ALLOWED_ORIGIN_REGEXES').split(',')
 
 # CORS Additional Settings
 CORS_ALLOW_CREDENTIALS = True
