@@ -47,7 +47,7 @@ export function useCalculation() {
   const calculateMutation = useMutation({
     mutationFn: async (input: CalculationInput) => {
       const response = await apiClient.post<CalculationResult>(
-        '/api/v1/calculations/calculate/',
+        '/api/v1/calculate/price/',
         input
       )
       return response.data

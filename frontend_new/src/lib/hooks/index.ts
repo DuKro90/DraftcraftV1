@@ -9,6 +9,8 @@ export { useConfig } from './useConfig'
 export { useDocuments } from './useDocuments'
 export { useProposals } from './useProposals'
 export { useTransparency } from './useTransparency'
+export { useAdminDashboard } from './useAdminDashboard'
+export { useBatch } from './useBatch'
 
 // Re-export types
 export type {
@@ -40,6 +42,18 @@ export type {
   FeedbackData,
 } from './useTransparency'
 
+export type {
+  DashboardStats,
+  RecentActivity,
+  SystemHealth,
+} from './useAdminDashboard'
+
+export type {
+  Batch,
+  BatchDocument,
+  CreateBatchInput,
+} from './useBatch'
+
 // Compatibility exports - delegating to main hooks
 import { useAuth } from './useAuth'
 import { useCalculation } from './useCalculation'
@@ -47,6 +61,8 @@ import { useConfig } from './useConfig'
 import { useDocuments } from './useDocuments'
 import { useProposals } from './useProposals'
 import { useTransparency } from './useTransparency'
+import { useAdminDashboard } from './useAdminDashboard'
+import { useBatch } from './useBatch'
 
 /**
  * Compatibility wrapper: useRegister -> useAuth
@@ -191,3 +207,33 @@ export function useDeviationFormatter(deviation: number) {
   const sign = deviation > 0 ? '+' : ''
   return `${sign}${(deviation * 100).toFixed(1)}%`
 }
+
+/**
+ * Compatibility wrapper: useDashboardStats -> useAdminDashboard
+ */
+export const useDashboardStats = useAdminDashboard
+
+/**
+ * Compatibility wrapper: useRecentActivity -> useAdminDashboard
+ */
+export const useRecentActivity = useAdminDashboard
+
+/**
+ * Compatibility wrapper: useSystemHealth -> useAdminDashboard
+ */
+export const useSystemHealth = useAdminDashboard
+
+/**
+ * Compatibility wrapper: useCreateBatch -> useBatch
+ */
+export const useCreateBatch = useBatch
+
+/**
+ * Compatibility wrapper: useProcessBatch -> useBatch
+ */
+export const useProcessBatch = useBatch
+
+/**
+ * Compatibility wrapper: useBatchStatus -> useBatch
+ */
+export const useBatchStatus = useBatch

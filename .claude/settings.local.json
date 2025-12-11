@@ -69,7 +69,15 @@
       "Bash(gcloud config get-value:*)",
       "Bash(git restore:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(if [ -d \"venv\" ])",
+      "Bash(then echo \"venv exists\")",
+      "Bash(else echo \"venv missing\")",
+      "Bash(fi)",
+      "Bash(python -m venv:*)",
+      "Bash(. venv/Scripts/activate)",
+      "Bash(venv/Scripts/pip.exe install:*)",
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []

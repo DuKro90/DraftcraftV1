@@ -59,7 +59,7 @@ export function useTransparency() {
       queryKey: ['transparency', 'explanation', calculationId],
       queryFn: async () => {
         const response = await apiClient.get(
-          `/api/v1/transparency/explanations/${calculationId}/`
+          `/api/v1/calculations/explanations/${calculationId}/`
         )
         return response.data
       },
@@ -71,7 +71,7 @@ export function useTransparency() {
   const benchmarksQuery = useQuery<UserProjectBenchmark[]>({
     queryKey: ['transparency', 'benchmarks'],
     queryFn: async () => {
-      const response = await apiClient.get('/api/v1/transparency/benchmarks/')
+      const response = await apiClient.get('/api/v1/benchmarks/user/')
       return response.data
     },
   })
@@ -79,7 +79,7 @@ export function useTransparency() {
   // Submit feedback
   const feedbackMutation = useMutation({
     mutationFn: async (data: FeedbackData) => {
-      const response = await apiClient.post('/api/v1/transparency/feedback/', data)
+      const response = await apiClient.post('/api/v1/feedback/calculation/', data)
       return response.data
     },
     onSuccess: () => {

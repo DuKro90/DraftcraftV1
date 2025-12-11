@@ -48,7 +48,7 @@ export function useConfig() {
   const oberflächenQuery = useQuery<OberflächeConfig[]>({
     queryKey: ['config', 'oberflächen'],
     queryFn: async () => {
-      const response = await apiClient.get('/api/v1/config/oberflächen/')
+      const response = await apiClient.get('/api/v1/config/oberflaechen/')
       return response.data
     },
   })
@@ -57,7 +57,7 @@ export function useConfig() {
   const komplexitätenQuery = useQuery<KomplexitätConfig[]>({
     queryKey: ['config', 'komplexitäten'],
     queryFn: async () => {
-      const response = await apiClient.get('/api/v1/config/komplexitäten/')
+      const response = await apiClient.get('/api/v1/config/komplexitaet/')
       return response.data
     },
   })
@@ -76,7 +76,7 @@ export function useConfig() {
   // Update Oberfläche
   const updateOberflächeMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<OberflächeConfig> }) => {
-      const response = await apiClient.patch(`/api/v1/config/oberflächen/${id}/`, data)
+      const response = await apiClient.patch(`/api/v1/config/oberflaechen/${id}/`, data)
       return response.data
     },
     onSuccess: () => {
@@ -87,7 +87,7 @@ export function useConfig() {
   // Update Komplexität
   const updateKomplexitätMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<KomplexitätConfig> }) => {
-      const response = await apiClient.patch(`/api/v1/config/komplexitäten/${id}/`, data)
+      const response = await apiClient.patch(`/api/v1/config/komplexitaet/${id}/`, data)
       return response.data
     },
     onSuccess: () => {

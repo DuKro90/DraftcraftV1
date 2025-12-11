@@ -41,7 +41,10 @@ export function useAuth() {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiClient.post<AuthResponse>('/api/v1/auth/login/', credentials)
+      const response = await apiClient.post<AuthResponse>('/api/auth/token/', {
+        username: credentials.email,
+        password: credentials.password
+      })
       return response.data
     },
     onSuccess: (data) => {
@@ -54,7 +57,14 @@ export function useAuth() {
   // Register mutation
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
-      const response = await apiClient.post<AuthResponse>('/api/v1/auth/register/', data)
+      const response = await apiClient.post<AuthResponse>('/api/auth/register/', {
+        username: data.email,
+        email: data.email,
+        password: data.password,
+        password_confirm: data.password,
+        first_name: data.first_name,
+        last_name: data.last_name
+      })
       return response.data
     },
     onSuccess: (data) => {
@@ -67,7 +77,7 @@ export function useAuth() {
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiClient.post('/api/v1/auth/logout/')
+      await apiClient.post('/api/auth/logout/')
     },
     onSuccess: () => {
       clearAuth()
